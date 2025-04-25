@@ -68,4 +68,7 @@ else
 endif
 
 libm = cc.find_library('m')
-subdir('test')
+
+if get_option('test')
+  subdir('test')
+endif
