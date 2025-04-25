@@ -109,6 +109,12 @@ IsStringEqual(struct string *left, struct string *right)
   return 1;
 }
 
+static inline b8
+IsStringNotEqual(struct string *left, struct string *right)
+{
+  return !IsStringEqual(left, right);
+}
+
 static u8
 ToLowerASCII(u8 character)
 {
