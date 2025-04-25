@@ -112,7 +112,7 @@ int
 main(void)
 {
   // setup
-#define KILOBYTES (1 << 10);
+  enum { KILOBYTES = (1 << 10) };
   u8 stackBuffer[8 * KILOBYTES];
   memory_arena stackMemory = {
       .block = stackBuffer,

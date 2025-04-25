@@ -100,7 +100,7 @@ main(void)
   enum text_test_error errorCode = TEXT_TEST_ERROR_NONE;
 
   // setup
-#define KILOBYTES (1 << 10)
+  enum { KILOBYTES = (1 << 10) };
   u8 stackBuffer[8 * KILOBYTES];
   memory_arena stackMemory = {
       .block = stackBuffer,
