@@ -1,9 +1,5 @@
 #include "memory.h"
 
-#pragma GCC diagnostic ignored "-Wpadded"          // do not care any waste for tests
-#pragma GCC diagnostic ignored "-Wunused-function" // do not care any unused functions
-
-// TODO: Show error pretty error message when a test fails
 enum memory_test_error {
   MEMORY_TEST_ERROR_NONE = 0,
   MEMORY_TEST_ERROR_MEM_PUSH_ALIGNED_EXPECTED_VALID_ADDRESS_1,

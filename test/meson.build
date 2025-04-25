@@ -1,4 +1,5 @@
 foreach testName : [
+  # Order is important
   'memory',
   'text',
   'teju',
@@ -14,7 +15,9 @@ foreach testName : [
       libm,
     ],
     c_args: [
-      # '-Wno-padded',
+      '-Wno-padded',          # Do not care wasting memory
+      '-Wno-unused-function', # Do not care if all functions not tested
+      '-Wno-unused-result',   # Do not care not using any result (e.g. Printing string to console)
     ],
   )
   test(testName, t)
