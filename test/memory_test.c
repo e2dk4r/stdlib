@@ -42,28 +42,28 @@ main(void)
     void *expected;
     void *value;
 
-    expected = (u8 *)stackMemory.block + 0;
+    expected = stackMemory.block + 0;
     value = MemoryArenaPushAligned(&stackMemory, 10, 4);
     if (value != expected) {
       errorCode = MEMORY_TEST_ERROR_MEM_PUSH_ALIGNED_EXPECTED_VALID_ADDRESS_1;
       goto end;
     }
 
-    expected = (u8 *)stackMemory.block + 12;
+    expected = stackMemory.block + 12;
     value = MemoryArenaPushAligned(&stackMemory, 10, 4);
     if (value != expected) {
       errorCode = MEMORY_TEST_ERROR_MEM_PUSH_ALIGNED_EXPECTED_VALID_ADDRESS_2;
       goto end;
     }
 
-    expected = (u8 *)stackMemory.block + 22;
+    expected = stackMemory.block + 22;
     value = MemoryArenaPush(&stackMemory, 8);
     if (value != expected) {
       errorCode = MEMORY_TEST_ERROR_MEM_PUSH_EXPECTED_VALID_ADDRESS_1;
       goto end;
     }
 
-    expected = (u8 *)stackMemory.block + 30;
+    expected = stackMemory.block + 30;
     value = MemoryArenaPush(&stackMemory, 10);
     if (value != expected) {
       errorCode = MEMORY_TEST_ERROR_MEM_PUSH_EXPECTED_VALID_ADDRESS_2;
