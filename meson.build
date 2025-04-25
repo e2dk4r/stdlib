@@ -55,6 +55,7 @@ if is_build_debug
       '-Wno-unused-parameter',
       '-Wno-unused-result',
       '-Wno-unused-const-variable',
+      '-Wno-unused-variable',
     ],
     language: 'c'
   )
