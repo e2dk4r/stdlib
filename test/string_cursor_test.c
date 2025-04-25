@@ -2,7 +2,8 @@
 #include "string_builder.h"
 #include "string_cursor.h"
 
-#pragma GCC diagnostic ignored "-Wpadded" // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wpadded"          // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wunused-function" // do not care any unused functions
 
 #define TEST_ERROR_LIST(XX)                                                                                            \
   XX(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_TRUE, "Expected string to start with the given prefix")             \

@@ -2,7 +2,8 @@
 #include "string_builder.h"
 #include "text.h"
 
-#pragma GCC diagnostic ignored "-Wpadded" // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wpadded"          // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wunused-function" // do not care any unused functions
 
 #define TEST_ERROR_LIST(XX)                                                                                            \
   XX(TEXT_TEST_ERROR_STRING_FROM_ZERO_TERMINATED, "Failed to create string from zero terminated c-string")             \

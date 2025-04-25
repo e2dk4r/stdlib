@@ -1,6 +1,7 @@
 #include "string_builder.h"
 
-#pragma GCC diagnostic ignored "-Wpadded" // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wpadded"          // do not care any waste for tests
+#pragma GCC diagnostic ignored "-Wunused-function" // do not care any unused functions
 
 // TODO: Show error pretty error message when a test fails
 enum string_builder_test_error {
