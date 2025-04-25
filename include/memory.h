@@ -1,8 +1,5 @@
 #pragma once
 
-// for linked list implementation, see test/linked_list_test.c
-// for hash table implementation, see test/hash_table_list_test.c
-
 #include "assert.h"
 #include "math.h"
 #include "type.h"
@@ -41,7 +38,7 @@ MemoryArenaSub(memory_arena *master, u64 size)
 
   memory_arena sub = (struct memory_arena){
       .total = size,
-      .block = (u8 *)master->block + master->used,
+      .block = master->block + master->used,
   };
 
   master->used += size;
@@ -52,7 +49,7 @@ static void *
 MemoryArenaPush(memory_arena *mem, u64 size)
 {
   debug_assert(mem->used + size <= mem->total);
-  u8 *result = (u8 *)mem->block + mem->used;
+  u8 *result = mem->block + mem->used;
   mem->used += size;
   return result;
 }
@@ -62,7 +59,7 @@ MemoryArenaPushAligned(memory_arena *mem, u64 size, u64 alignment)
 {
   debug_assert(IsPowerOfTwo(alignment));
 
-  u8 *block = (u8 *)mem->block + mem->used;
+  u8 *block = mem->block + mem->used;
 
   u64 alignmentMask = alignment - 1;
   u64 alignmentResult = ((u64)block & alignmentMask);
