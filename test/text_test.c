@@ -53,10 +53,10 @@ enum text_test_error {
   MESON_TEST_FAILED_TO_SET_UP = 99,
 };
 
-internalfn string *
-GetTextTestErrorMessage(enum text_test_error errorCode)
+internalfn void
+StringBuilderAppendErrorMessage(struct string_builder *stringBuilder, enum text_test_error errorCode)
 {
-  struct text_test_error_info {
+  struct error {
     enum text_test_error code;
     struct string message;
   } errors[] = {
@@ -65,12 +65,16 @@ GetTextTestErrorMessage(enum text_test_error errorCode)
 #undef XX
   };
 
+  struct string message = StringFromLiteral("Unknown error");
   for (u32 index = 0; index < ARRAY_COUNT(errors); index++) {
-    struct text_test_error_info *info = errors + index;
-    if (info->code == errorCode)
-      return (struct string *)&info->message;
+    struct error *error = errors + index;
+    if (error->code == errorCode) {
+      message = error->message;
+      break;
+    }
   }
-  return 0;
+
+  StringBuilderAppendString(stringBuilder, &message);
 }
 
 internalfn void
@@ -137,7 +141,7 @@ main(void)
       if (got.value != (u8 *)input || got.length != expected) {
         errorCode = TEXT_TEST_ERROR_STRING_FROM_ZERO_TERMINATED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
         StringBuilderAppendU64(sb, expected);
         StringBuilderAppendStringLiteral(sb, "\n       got: ");
@@ -244,7 +248,7 @@ main(void)
         errorCode =
             expected ? TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_TRUE : TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  left:     ");
         StringBuilderAppendPrintableString(sb, left);
         StringBuilderAppendStringLiteral(sb, "\n  right:    ");
@@ -359,7 +363,7 @@ main(void)
         errorCode = expected ? TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_TRUE
                              : TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  left:     ");
         StringBuilderAppendPrintableString(sb, left);
         StringBuilderAppendStringLiteral(sb, "\n  right:    ");
@@ -420,7 +424,7 @@ main(void)
         errorCode = expected ? TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_TRUE
                              : TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  string:   ");
         StringBuilderAppendString(sb, string);
         StringBuilderAppendStringLiteral(sb, "\n  search:   ");
@@ -512,7 +516,7 @@ main(void)
         errorCode = expected ? TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_TRUE
                              : TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  string:   ");
         StringBuilderAppendString(sb, string);
         StringBuilderAppendStringLiteral(sb, "\n  search:   ");
@@ -594,7 +598,7 @@ main(void)
         errorCode = expected ? TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_TRUE
                              : TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  string:   ");
         StringBuilderAppendString(sb, string);
         StringBuilderAppendStringLiteral(sb, "\n  search:   ");
@@ -661,7 +665,7 @@ main(void)
         errorCode = expected->length > 0 ? TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_STRING
                                          : TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_NULL;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  string:   ");
         StringBuilderAppendString(sb, string);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -801,7 +805,7 @@ main(void)
         errorCode =
             expected ? TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_TRUE : TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  string:   ");
         StringBuilderAppendPrintableString(sb, string);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -955,12 +959,12 @@ main(void)
       struct string *input = &testCase->input;
       b8 expectedResult = testCase->expected.result;
       u64 expectedValue = testCase->expected.value;
-      u64 value;
+      u64 value = 0;
       b8 result = ParseU64(input, &value);
       if (result != expectedResult || (expectedResult && value != expectedValue)) {
         errorCode = expectedResult ? TEXT_TEST_ERROR_PARSE_U64_EXPECTED_TRUE : TEXT_TEST_ERROR_PARSE_U64_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input:    ");
         StringBuilderAppendPrintableString(sb, input);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -1058,12 +1062,12 @@ main(void)
       struct string *input = &testCase->input;
       b8 expectedResult = testCase->expected.result;
       u64 expectedValue = testCase->expected.value;
-      u64 value;
+      u64 value = !expectedValue;
       b8 result = ParseHex(input, &value);
       if (result != expectedResult || (expectedResult && value != expectedValue)) {
         errorCode = expectedResult ? TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_TRUE : TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input:    ");
         StringBuilderAppendPrintableString(sb, input);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -1125,7 +1129,7 @@ main(void)
       if (!IsStringEqual(&value, expected)) {
         errorCode = TEXT_TEST_ERROR_FORMATU64_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input:    ");
         StringBuilderAppendU64(sb, input);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -1233,7 +1237,7 @@ main(void)
       if (!IsStringEqual(&value, expected)) {
         errorCode = TEXT_TEST_ERROR_FORMATF32SLOW_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input (with 12 fraction count): ");
         StringBuilderAppendF32(sb, input, 12);
         StringBuilderAppendStringLiteral(sb, "\n                   fractionCount: ");
@@ -1287,7 +1291,7 @@ main(void)
       if (!IsStringEqual(&value, expected)) {
         errorCode = TEXT_TEST_ERROR_FORMATHEX_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input:    ");
         StringBuilderAppendU64(sb, input);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -1343,7 +1347,7 @@ main(void)
       if (!IsStringEqual(&value, expected)) {
         errorCode = TEXT_TEST_ERROR_PATHGETDIRECTORY;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  input:    ");
         StringBuilderAppendPrintableString(sb, input);
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
@@ -1479,12 +1483,12 @@ main(void)
 
       u64 expectedSplitCount = testCase->expected.splitCount;
       b8 expected = testCase->expected.value;
-      u64 splitCount;
+      u64 splitCount = !expectedSplitCount;
       b8 value = StringSplit(input, separator, &splitCount, 0);
       if (value != expected || (expected && splitCount != expectedSplitCount)) {
         errorCode = expected ? TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_TRUE : TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n      input: '");
         StringBuilderAppendString(sb, input);
         StringBuilderAppendStringLiteral(sb, "'");
@@ -1520,7 +1524,7 @@ main(void)
                 expected ? TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_TRUE : TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_FALSE;
 
             if (splitFailCount == 0) {
-              StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+              StringBuilderAppendErrorMessage(sb, errorCode);
               StringBuilderAppendStringLiteral(sb, "\n        input: '");
               StringBuilderAppendString(sb, input);
               StringBuilderAppendStringLiteral(sb, "'");

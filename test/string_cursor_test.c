@@ -34,10 +34,10 @@ enum string_cursor_test_error {
   MESON_TEST_FAILED_TO_SET_UP = 99,
 };
 
-internalfn string *
-GetTextTestErrorMessage(enum string_cursor_test_error errorCode)
+internalfn void
+StringBuilderAppendErrorMessage(struct string_builder *stringBuilder, enum string_cursor_test_error errorCode)
 {
-  struct string_cursor_test_error_info {
+  struct error {
     enum string_cursor_test_error code;
     struct string message;
   } errors[] = {
@@ -46,12 +46,16 @@ GetTextTestErrorMessage(enum string_cursor_test_error errorCode)
 #undef XX
   };
 
+  struct string message = StringFromLiteral("Unknown error");
   for (u32 index = 0; index < ARRAY_COUNT(errors); index++) {
-    struct string_cursor_test_error_info *info = errors + index;
-    if (info->code == errorCode)
-      return (struct string *)&info->message;
+    struct error *error = errors + index;
+    if (error->code == errorCode) {
+      message = error->message;
+      break;
+    }
   }
-  return 0;
+
+  StringBuilderAppendString(stringBuilder, &message);
 }
 
 internalfn void
@@ -155,7 +159,7 @@ main(void)
         errorCode = expected ? STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_TRUE
                              : STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -242,7 +246,7 @@ main(void)
         errorCode = expected ? STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE
                              : STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -342,7 +346,7 @@ main(void)
           (!expectedToFindString && cursor->position != expectedPosition)) {
         errorCode = STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -463,7 +467,7 @@ main(void)
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -572,7 +576,7 @@ main(void)
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -682,7 +686,7 @@ main(void)
         errorCode = expected->length ? STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE
                                      : STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_FALSE;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
@@ -746,7 +750,7 @@ main(void)
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_CONSUMED;
 
-        StringBuilderAppendString(sb, GetTextTestErrorMessage(errorCode));
+        StringBuilderAppendErrorMessage(sb, errorCode);
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "' at position: ");
