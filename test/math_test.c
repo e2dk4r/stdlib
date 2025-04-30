@@ -2,8 +2,6 @@
 #include "print.h"
 #include "string_builder.h"
 
-// TODO: Show error pretty error message when a test fails
-
 #define TEST_ERROR_LIST(X)                                                                                             \
   X(CLAMP, "Input must be clamped")                                                                                    \
   X(IS_POWER_OF_TWO_EXPECTED_TRUE, "Input must be power of two")                                                       \

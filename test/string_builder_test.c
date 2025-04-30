@@ -1,6 +1,5 @@
 #include "string_builder.h"
 
-// TODO: Show error pretty error message when a test fails
 enum string_builder_test_error {
   STRING_BUILDER_TEST_ERROR_NONE = 0,
   STRING_BUILDER_TEST_ERROR_APPENDZEROTERMINATED,
