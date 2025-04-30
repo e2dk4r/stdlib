@@ -73,3 +73,7 @@ libm = cc.find_library('m')
 if get_option('test')
   subdir('test')
 endif
+
+if get_option('tools')
+  subdir('tool')
+endif
