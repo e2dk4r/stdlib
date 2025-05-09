@@ -41,9 +41,11 @@ internalfn void
 StringBuilderAppendPlatformError(struct string_builder *stringBuilder)
 {
   struct string error = StringFromZeroTerminated((u8 *)strerror(errno), 4096);
-  StringBuilderAppendS32(stringBuilder, errno);
-  StringBuilderAppendStringLiteral(stringBuilder, " ");
   StringBuilderAppendString(stringBuilder, &error);
+
+  StringBuilderAppendStringLiteral(stringBuilder, " (Errno ");
+  StringBuilderAppendS32(stringBuilder, errno);
+  StringBuilderAppendStringLiteral(stringBuilder, ")");
 }
 
 internalfn enum platform_error
