@@ -5,6 +5,7 @@ enum string_builder_test_error {
   STRING_BUILDER_TEST_ERROR_APPENDZEROTERMINATED,
   STRING_BUILDER_TEST_ERROR_APPENDSTRING,
   STRING_BUILDER_TEST_ERROR_APPENDU64,
+  STRING_BUILDER_TEST_ERROR_APPENDS64,
   STRING_BUILDER_TEST_ERROR_APPENDHEX,
   STRING_BUILDER_TEST_ERROR_APPENDF32,
   STRING_BUILDER_TEST_ERROR_FLUSH,
@@ -79,6 +80,18 @@ main(void)
     }
   }
   StringBuilderFlush(sb);
+
+  // void StringBuilderAppendS64(string_builder *stringBuilder, s64 value)
+  {
+    StringBuilderAppendS64(sb, -59270875);
+
+    string *expected = &StringFromLiteral("-59270875");
+    if (!IsStringStartsWith(outBuffer, expected)) {
+      errorCode = STRING_BUILDER_TEST_ERROR_APPENDS64;
+      goto end;
+    }
+    StringBuilderFlush(sb);
+  }
 
   // StringBuilderAppendHex(string_builder *stringBuilder, u64 value)
   {
