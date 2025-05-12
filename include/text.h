@@ -23,6 +23,12 @@ typedef struct string string;
   })
 
 static inline struct string
+StringNull(void)
+{
+  return (struct string){.value = 0, .length = 0};
+}
+
+static inline struct string
 StringFromBuffer(u8 *buffer, u64 length)
 {
   debug_assert(buffer != 0);
@@ -37,7 +43,7 @@ static inline struct string
 StringFromZeroTerminated(u8 *src, u64 max)
 {
   debug_assert(src != 0);
-  struct string string = {.value = 0, .length = 0};
+  struct string string = StringNull();
 
   string.value = src;
 
@@ -203,7 +209,7 @@ IsStringEndsWith(struct string *string, struct string *search)
 static struct string
 StringStripWhitespace(struct string *string)
 {
-  struct string result = {.value = 0, .length = 0};
+  struct string result = StringNull();
   if (!string || string->length == 0)
     return result;
 
@@ -544,7 +550,7 @@ static inline struct string
 FormatU64(struct string *stringBuffer, u64 value)
 {
   // max 18446744073709551615
-  struct string result = {.value = 0, .length = 0};
+  struct string result = StringNull();
   if (!stringBuffer || stringBuffer->length == 0)
     return result;
 
@@ -581,7 +587,7 @@ FormatU64(struct string *stringBuffer, u64 value)
 static inline struct string
 FormatS64(struct string *stringBuffer, s64 value)
 {
-  struct string result = {.value = 0, .length = 0};
+  struct string result = StringNull();
   if (!stringBuffer || stringBuffer->length == 0)
     return result;
 
@@ -607,7 +613,7 @@ FormatF32Slow(struct string *stringBuffer, f32 value, u32 fractionCount)
 {
   debug_assert(fractionCount >= 1 && fractionCount <= 8);
 
-  struct string result = {.value = 0, .length = 0};
+  struct string result = StringNull();
   if (!stringBuffer || stringBuffer->length < 3)
     return result;
 
@@ -758,7 +764,7 @@ ParseHex(struct string *string, u64 *value)
 static inline struct string
 FormatHex(struct string *stringBuffer, u64 value)
 {
-  struct string result = {.value = 0, .length = 0};
+  struct string result = StringNull();
   if (!stringBuffer || stringBuffer->length < 2)
     return result;
 
@@ -806,7 +812,7 @@ FormatHex(struct string *stringBuffer, u64 value)
 static inline struct string
 PathGetDirectory(struct string *path)
 {
-  struct string directory = {.value = 0, .length = 0};
+  struct string directory = StringNull();
 
   if (!path || !path->value || path->length == 0)
     return directory;

@@ -475,7 +475,7 @@ main(void)
         },
         {
             .string = StringFromLiteral("abc def ghi"),
-            .search = (struct string){.value = 0, .length = 0},
+            .search = StringNull(),
             .expected = 0,
         },
         {
@@ -484,18 +484,18 @@ main(void)
             .expected = 0,
         },
         {
-            .string = (struct string){.value = 0, .length = 0},
+            .string = StringNull(),
             .search = StringFromLiteral(""),
             .expected = 0,
         },
         {
             .string = StringFromLiteral(""),
-            .search = (struct string){.value = 0, .length = 0},
+            .search = StringNull(),
             .expected = 0,
         },
         {
-            .string = (struct string){.value = 0, .length = 0},
-            .search = (struct string){.value = 0, .length = 0},
+            .string = StringNull(),
+            .search = StringNull(),
             .expected = 0,
         },
         {
@@ -566,18 +566,18 @@ main(void)
             .expected = 0,
         },
         {
-            .string = (struct string){.value = 0, .length = 0},
+            .string = StringNull(),
             .search = StringFromLiteral(""),
             .expected = 0,
         },
         {
             .string = StringFromLiteral(""),
-            .search = (struct string){.value = 0, .length = 0},
+            .search = StringNull(),
             .expected = 0,
         },
         {
-            .string = (struct string){.value = 0, .length = 0},
-            .search = (struct string){.value = 0, .length = 0},
+            .string = StringNull(),
+            .search = StringNull(),
             .expected = 0,
         },
         {
@@ -634,16 +634,16 @@ main(void)
             .expected = StringFromLiteral("123"),
         },
         {
-            .string = (struct string){.value = 0, .length = 0},
-            .expected = (struct string){.value = 0, .length = 0},
+            .string = StringNull(),
+            .expected = StringNull(),
         },
         {
             .string = StringFromLiteral(""),
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
         {
             .string = StringFromLiteral("\n\t\v\f"),
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
         {
             .string = StringFromLiteral("abc"),
@@ -757,7 +757,7 @@ main(void)
                 },
         },
         {
-            .string = (struct string){.value = 0, .length = 0}, // NULL
+            .string = StringNull(), // NULL
             .expected =
                 {
                     .value = 0,
@@ -931,7 +931,7 @@ main(void)
                 },
         },
         {
-            .input = (struct string){.value = 0, .length = 0},
+            .input = StringNull(),
             .expected =
                 {
                     .result = 0,
@@ -1034,7 +1034,7 @@ main(void)
                 },
         },
         {
-            .input = (struct string){.value = 0, .length = 0},
+            .input = StringNull(),
             .expected =
                 {
                     .result = 0,
@@ -1321,20 +1321,20 @@ main(void)
             .expected = StringFromLiteral("/"),
         },
         {
-            .input = (struct string){.value = 0, .length = 0},
-            .expected = (struct string){.value = 0, .length = 0},
+            .input = StringNull(),
+            .expected = StringNull(),
         },
         {
             .input = StringFromLiteral(""),
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
         {
             .input = StringFromLiteral(" "),
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
         {
             .input = StringFromLiteral("no directory"),
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
     };
 
@@ -1415,7 +1415,7 @@ main(void)
                     .splits =
                         (struct string[]){
                             StringFromLiteral("1"),
-                            (struct string){.value = 0, .length = 0},
+                            StringNull(),
                             StringFromLiteral("2"),
                             StringFromLiteral("3"),
                         },
@@ -1433,7 +1433,7 @@ main(void)
                             StringFromLiteral("1"),
                             StringFromLiteral("2"),
                             StringFromLiteral("3"),
-                            (struct string){.value = 0, .length = 0},
+                            StringNull(),
                         },
                 },
         },

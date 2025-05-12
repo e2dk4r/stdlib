@@ -211,13 +211,13 @@ main(void)
             .bufferSize = 1,
             .value = 0.0f,
             .fractionCount = 1,
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
         {
             .bufferSize = 2,
             .value = 0.0f,
             .fractionCount = 1,
-            .expected = (struct string){.value = 0, .length = 0},
+            .expected = StringNull(),
         },
     };
 
