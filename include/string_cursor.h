@@ -159,6 +159,45 @@ StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
 }
 
 internalfn struct string
+StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search)
+{
+  struct string result = StringNull();
+  struct string remaining = StringCursorExtractRemaining(cursor);
+
+  if (remaining.length == 0 || search->length == 0)
+    return result;
+
+  if (remaining.length < search->length)
+    return remaining;
+
+  u64 index = remaining.length - search->length;
+  while (index < remaining.length) {
+    struct string substring = StringFromBuffer(remaining.value + index, search->length);
+    if (IsStringEqual(&substring, search))
+      break;
+    else if (index == 0)
+      return remaining;
+
+    index--;
+  }
+
+  if (index == 0)
+    return result;
+
+  result.value = remaining.value;
+  result.length = index;
+  return result;
+}
+
+internalfn struct string
+StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search)
+{
+  struct string result = StringCursorExtractUntilLast(cursor, search);
+  cursor->position += result.length;
+  return result;
+}
+
+internalfn struct string
 StringCursorExtractThrough(struct string_cursor *cursor, struct string *search)
 {
   struct string result = StringNull();

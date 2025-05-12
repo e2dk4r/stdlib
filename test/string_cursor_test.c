@@ -9,6 +9,7 @@
   XX(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE, "Remaining text must match the search string")         \
   XX(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE, "Remaining text must NOT match the search string")    \
   XX(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED, "Text consumed must match the expected")                         \
+  XX(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED, "ConsumeUntilLast: Text consumed must match the expected")  \
   XX(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED, "Text extracted through search must match the expected")       \
   XX(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE, "Number must be extracted from cursor position")           \
   XX(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_FALSE, "Number must NOT be extracted from cursor position")      \
@@ -479,6 +480,109 @@ main(void)
         StringBuilderAppendPrintableString(sb, expected);
         StringBuilderAppendStringLiteral(sb, "\n       got: ");
         StringBuilderAppendPrintableString(sb, &got);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // struct string StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search)
+  {
+    struct test_case {
+      struct string_cursor cursor;
+      struct string search;
+      struct string expected;
+    } testCases[] = {
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Lorem Ipsum"),
+                },
+            .search = StringFromLiteral("Lorem"),
+            .expected = StringNull(),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral(" Lorem Ipsum"),
+                },
+            .search = StringFromLiteral("Lorem"),
+            .expected = StringFromLiteral(" "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+                },
+            .search = StringFromLiteral(" "),
+            .expected = StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing"),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Praesent nec consectetur orci."),
+                },
+            .search = StringFromLiteral(" "),
+            .expected = StringFromLiteral("Praesent nec consectetur"),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("abcdefgh"),
+                    .position = 0,
+                },
+            .search = StringFromLiteral("012345"),
+            .expected = StringFromLiteral("abcdefgh"),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Lorem"),
+                    .position = 0,
+                },
+            .search = StringFromLiteral("no fucking way"),
+            .expected = StringFromLiteral("Lorem"),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("no fucking way"),
+                },
+            .search = StringNull(),
+            .expected = StringNull(),
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *expected = &testCase->expected;
+      struct string_cursor *cursor = &testCase->cursor;
+      struct string remainingAtStart = StringCursorExtractRemaining(cursor);
+      struct string *search = &testCase->search;
+
+      if (IsStringEqual(search, &StringFromLiteral("Lorem"))) {
+        u32 breakHere = 1;
+      }
+
+      struct string got = StringCursorConsumeUntilLast(cursor, search);
+      if (!IsStringEqual(&got, expected)) {
+        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+        StringBuilderAppendStringLiteral(sb, "\n    cursor: '");
+        StringBuilderAppendString(sb, &remainingAtStart);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n    search: '");
+        StringBuilderAppendString(sb, search);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n  expected: '");
+        StringBuilderAppendPrintableString(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n       got: '");
+        StringBuilderAppendPrintableString(sb, &got);
+        StringBuilderAppendStringLiteral(sb, "'");
         StringBuilderAppendStringLiteral(sb, "\n");
         struct string errorMessage = StringBuilderFlush(sb);
         PrintString(&errorMessage);
