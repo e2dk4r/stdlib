@@ -2,24 +2,32 @@
 #include "string_builder.h"
 #include "string_cursor.h"
 
-#define TEST_ERROR_LIST(XX)                                                                                            \
-  XX(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_TRUE, "Expected string to start with the given prefix")             \
-  XX(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_FALSE, "Expected string NOT to start with the given prefix")        \
-  XX(STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_EXPECTED, "Cursor must advance after search string or go to end")          \
-  XX(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE, "Remaining text must match the search string")         \
-  XX(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE, "Remaining text must NOT match the search string")    \
-  XX(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED, "Text consumed must match the expected")                         \
-  XX(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED, "ConsumeUntilLast: Text consumed must match the expected")  \
-  XX(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED, "Text extracted through search must match the expected")       \
-  XX(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE, "Number must be extracted from cursor position")           \
-  XX(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_FALSE, "Number must NOT be extracted from cursor position")      \
-  XX(STRING_CURSOR_TEST_ERROR_EXTRACT_CONSUMED, "Consumed string not matching expected")
+#define TEST_ERROR_LIST(X)                                                                                             \
+  X(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_TRUE,                                                                \
+    "IsStartsWith: Expected string to start with the given prefix")                                                    \
+  X(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_FALSE,                                                               \
+    "IsStartsWith: Expected string NOT to start with the given prefix")                                                \
+  X(STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_EXPECTED,                                                                   \
+    "AdvanceAfter: Cursor must advance after search string or go to end")                                              \
+  X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE,                                                         \
+    "IsRemainingEqual: Remaining text must match the search string")                                                   \
+  X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE,                                                        \
+    "IsRemainingEqual: Remaining text must NOT match the search string")                                               \
+  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED, "ConsumeUntil: Text consumed must match the expected")            \
+  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED, "ConsumeUntilLast: Text consumed must match the expected")   \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED,                                                                 \
+    "ExtractThrough: Text extracted through search must match the expected")                                           \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE,                                                             \
+    "ExtractNumber: Number must be extracted from cursor position")                                                    \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_FALSE,                                                            \
+    "ExtractNumber: Number must NOT be extracted from cursor position")                                                \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_CONSUMED, "ExtractConsumed: Consumed string not matching expected")
 
 enum string_cursor_test_error {
   STRING_CURSOR_TEST_ERROR_NONE = 0,
-#define XX(tag, message) tag,
-  TEST_ERROR_LIST(XX)
-#undef XX
+#define X(tag, message) tag,
+  TEST_ERROR_LIST(X)
+#undef X
 
   // src: https://mesonbuild.com/Unit-tests.html#skipped-tests-and-hard-errors
   // For the default exitcode testing protocol, the GNU standard approach in
