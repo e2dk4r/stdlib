@@ -88,31 +88,6 @@ IsStringCursorStartsWith(struct string_cursor *cursor, struct string *prefix)
 }
 
 internalfn b8
-StringCursorAdvanceAfter(struct string_cursor *cursor, struct string *search)
-{
-  struct string remaining = StringCursorExtractRemaining(cursor);
-
-  u64 index = 0;
-  while (index < remaining.length) {
-    struct string substring = StringFromBuffer(remaining.value + index, search->length);
-    if (search->length > remaining.length - index) {
-      cursor->position += remaining.length;
-      return 0;
-    }
-
-    if (IsStringEqual(&substring, search)) {
-      index += search->length;
-      break;
-    }
-
-    index++;
-  }
-
-  cursor->position += index;
-  return 1;
-}
-
-internalfn b8
 IsStringCursorRemainingEqual(struct string_cursor *cursor, struct string *search)
 {
   if (cursor->position + search->length > cursor->source->length)
@@ -271,4 +246,34 @@ StringCursorExtractNumber(struct string_cursor *cursor)
   result = remaining;
   result.length = count;
   return result;
+}
+
+/*
+ * Advance cursor after first occurence of search text found in remaining text.
+ * @return true if search text found
+ *         false otherwise
+ */
+internalfn b8
+StringCursorAdvanceAfter(struct string_cursor *cursor, struct string *search)
+{
+  struct string remaining = StringCursorExtractRemaining(cursor);
+
+  u64 index = 0;
+  while (index < remaining.length) {
+    struct string substring = StringFromBuffer(remaining.value + index, search->length);
+    if (search->length > remaining.length - index) {
+      cursor->position += remaining.length;
+      return 0;
+    }
+
+    if (IsStringEqual(&substring, search)) {
+      index += search->length;
+      break;
+    }
+
+    index++;
+  }
+
+  cursor->position += index;
+  return 1;
 }

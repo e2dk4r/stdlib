@@ -180,7 +180,6 @@ main(void)
   }
 
   // b8 IsStringCursorRemainingEqual(struct string_cursor *cursor, struct string *search)
-  b8 IsStringCursorRemainingEqualOK = 1;
   {
     struct test_case {
       struct string_cursor cursor;
@@ -243,15 +242,19 @@ main(void)
 
       b8 got = IsStringCursorRemainingEqual(cursor, search);
       if (got != expected) {
-        IsStringCursorRemainingEqualOK = 0;
         errorCode = expected ? STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE
                              : STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");
@@ -267,8 +270,7 @@ main(void)
   }
 
   // b8 StringCursorAdvanceAfter(struct string_cursor *cursor, struct string *search)
-  // Dependencies (for testing): IsStringCursorRemainingEqual()
-  if (IsStringCursorRemainingEqualOK) {
+  {
     struct test_case {
       struct string_cursor cursor;
       struct string *search;
@@ -281,23 +283,36 @@ main(void)
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
                     .position = 0,
                 },
             .search = &StringFromLiteral("Lorem"),
             .expected =
                 {
                     .value = 1,
-                    .remaining = &StringFromLiteral(" Ipsum"),
+                    .remaining = &StringFromLiteral(" ipsum dolor sit amet, consectetur adipiscing elit."),
                 },
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
-                    .position = 1,
+                    .source = &StringFromLiteral("Fusce tempor feugiat purus, quis scelerisque dui accumsan sodales."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral("Ipsum"),
+            .search = &StringFromLiteral("purus,"),
+            .expected =
+                {
+                    .value = 1,
+                    .remaining = &StringFromLiteral(" quis scelerisque dui accumsan sodales."),
+                },
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Mauris sed rutrum risus, sit amet blandit velit."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("velit."),
             .expected =
                 {
                     .value = 1,
@@ -307,27 +322,31 @@ main(void)
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
-                    .position = 1,
+                    .source = &StringFromLiteral("Nam quis aliquet augue."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral("Lorem"),
+            .search = &StringFromLiteral("dignissim"),
             .expected =
                 {
                     .value = 0,
-                    .position = StringFromLiteral("Lorem Ipsum").length,
+                    .position = StringFromLiteral("Nam quis aliquet augue.").length,
                 },
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
-                    .position = 1,
+                    .source = &StringFromLiteral(
+                        "Praesent nec nibh ut arcu semper pharetra. Praesent volutpat ut metus vitae ultrices."),
+                    .position = StringFromLiteral("Praesent nec nibh ut arcu semper pharetra.").length,
                 },
-            .search = &StringFromLiteral("abc"),
+            .search = &StringFromLiteral("Nullam"),
             .expected =
                 {
                     .value = 0,
-                    .position = StringFromLiteral("Lorem Ipsum").length,
+                    .position =
+                        StringFromLiteral(
+                            "Praesent nec nibh ut arcu semper pharetra. Praesent volutpat ut metus vitae ultrices.")
+                            .length,
                 },
         },
     };
@@ -342,44 +361,48 @@ main(void)
       struct string *search = testCase->search;
 
       b8 got = StringCursorAdvanceAfter(cursor, search);
-      if (got != expectedToFindString ||
-          (expectedToFindString && !IsStringCursorRemainingEqual(cursor, expectedRemaining)) ||
+      struct string remaining = StringCursorExtractRemaining(cursor);
+      if (got != expectedToFindString || (expectedToFindString && !IsStringEqual(&remaining, expectedRemaining)) ||
           (!expectedToFindString && cursor->position != expectedPosition)) {
         errorCode = STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");
+
         if (got != expectedToFindString) {
           StringBuilderAppendStringLiteral(sb, "\n  expected to find search: ");
           StringBuilderAppendBool(sb, expectedToFindString);
-          StringBuilderAppendStringLiteral(sb, "\n       got: ");
+          StringBuilderAppendStringLiteral(sb, "\n                      got: ");
           StringBuilderAppendBool(sb, got);
         } else if (!expectedToFindString && cursor->position != expectedPosition) {
           StringBuilderAppendStringLiteral(sb, "\n  expected cursor position: ");
           StringBuilderAppendU64(sb, expectedPosition);
-          StringBuilderAppendStringLiteral(sb, "\n       got: ");
+          StringBuilderAppendStringLiteral(sb, "\n                       got: ");
           StringBuilderAppendU64(sb, cursor->position);
         } else {
-          StringBuilderAppendStringLiteral(sb, "\n   expected: ");
+          StringBuilderAppendStringLiteral(sb, "\n   expected: '");
           StringBuilderAppendString(sb, expectedRemaining);
-          StringBuilderAppendStringLiteral(sb, "\n        got: ");
-          struct string remaining = StringCursorExtractSubstring(cursor, cursor->source->length - cursor->position);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n        got: '");
           StringBuilderAppendString(sb, &remaining);
+          StringBuilderAppendStringLiteral(sb, "'");
         }
         StringBuilderAppendStringLiteral(sb, "\n");
         struct string errorMessage = StringBuilderFlush(sb);
         PrintString(&errorMessage);
       }
     }
-  } else {
-    PrintString(&StringFromLiteral(
-        "StringCursorAdvanceAfter() tests are skipped because IsStringCursorRemainingEqual() failed\n"));
   }
 
   // struct string StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
