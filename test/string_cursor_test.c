@@ -725,16 +725,22 @@ main(void)
       struct string *expected = &testCase->expected;
       struct string_cursor *cursor = &testCase->cursor;
       struct string *search = testCase->search;
+      struct string remaining = StringCursorExtractRemaining(cursor);
 
       struct string got = StringCursorExtractThrough(cursor, search);
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");
