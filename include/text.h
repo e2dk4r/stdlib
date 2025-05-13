@@ -66,6 +66,15 @@ MakeString(memory_arena *arena, u64 length)
   return result;
 }
 
+static inline struct string *
+MakeStringAligned(memory_arena *arena, u64 length, u64 alignment)
+{
+  struct string *result = MemoryArenaPush(arena, sizeof(*result));
+  result->length = length;
+  result->value = MemoryArenaPushAligned(arena, result->length, alignment);
+  return result;
+}
+
 static inline struct string
 StringSlice(struct string *string, u64 startIndex, u64 endIndex)
 {
