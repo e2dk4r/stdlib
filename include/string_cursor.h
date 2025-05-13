@@ -146,6 +146,12 @@ StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
   return result;
 }
 
+/*
+ * Extract until last occurence of search text found in remaining text.
+ * @return text before last occurence of search text
+ *         null if remaining text starts with search text
+ *         remaining text if search text not found
+ */
 internalfn struct string
 StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search)
 {
@@ -177,6 +183,13 @@ StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search
   return result;
 }
 
+/*
+ * Extract and advance cursor until last occurence of search text found in
+ * remaining text.
+ * @return text before last occurence of search text
+ *         null if remaining text starts with search text
+ *         remaining text if search text not found
+ */
 internalfn struct string
 StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search)
 {

@@ -623,20 +623,22 @@ main(void)
 
       struct string *expected = &testCase->expected;
       struct string_cursor *cursor = &testCase->cursor;
-      struct string remainingAtStart = StringCursorExtractRemaining(cursor);
       struct string *search = &testCase->search;
-
-      if (IsStringEqual(search, &StringFromLiteral("Lorem"))) {
-        u32 breakHere = 1;
-      }
 
       struct string got = StringCursorConsumeUntilLast(cursor, search);
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n    cursor: '");
-        StringBuilderAppendString(sb, &remainingAtStart);
+        StringBuilderAppendString(sb, cursor->source);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "'");
         StringBuilderAppendStringLiteral(sb, "\n    search: '");
         StringBuilderAppendString(sb, search);
@@ -664,7 +666,7 @@ main(void)
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
                     .position = 0,
                 },
             .search = &StringFromLiteral("Lorem"),
@@ -673,63 +675,47 @@ main(void)
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("ab"),
+                    .source = &StringFromLiteral("Fusce tempor feugiat purus, quis scelerisque dui accumsan sodales."),
                     .position = 0,
                 },
-            .search = &StringFromLiteral("c"),
-            .expected = StringFromLiteral("ab"),
+            .search = &StringFromLiteral("purus,"),
+            .expected = StringFromLiteral("Fusce tempor feugiat purus,"),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Mauris sed rutrum risus, sit amet blandit velit."),
                     .position = 0,
                 },
-            .search = &StringFromLiteral("Ipsum"),
-            .expected = StringFromLiteral("Lorem Ipsum"),
+            .search = &StringFromLiteral("velit."),
+            .expected = StringFromLiteral("Mauris sed rutrum risus, sit amet blandit velit."),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
+                    .source = &StringFromLiteral("Nam quis aliquet augue."),
                     .position = 0,
                 },
-            .search = &StringFromLiteral(".2"),
-            .expected = StringFromLiteral("1.2"),
+            .search = &StringFromLiteral("Praesent"),
+            .expected = StringFromLiteral("Nam quis aliquet augue."),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
-                    .position = 2,
-                },
-            .search = &StringFromLiteral(".2"),
-        },
-        {
-            .cursor =
-                {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
                     .position = 0,
                 },
-            .search = &StringFromLiteral("abc"),
+            .search = &StringFromLiteral("volutpat"),
+            .expected = StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
-                    .position = 0,
+                    .source = &StringFromLiteral("Praesent volutpat ut metus vitae ultrices."),
+                    .position = StringFromLiteral("Praesent volutpat ut metus vitae ultrices.").length,
                 },
-            .search = &StringFromLiteral(".3"),
-            .expected = StringFromLiteral("1.2.3"),
-        },
-        {
-            .cursor =
-                {
-                    .source = &StringFromLiteral("1.2.3"),
-                    .position = 2,
-                },
-            .search = &StringFromLiteral(".3"),
-            .expected = StringFromLiteral("2.3"),
+            .search = &StringFromLiteral("Nullam"),
+            .expected = StringNull(),
         },
     };
 
