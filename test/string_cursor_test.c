@@ -161,10 +161,15 @@ main(void)
                              : STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_FALSE;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");
