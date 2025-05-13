@@ -730,6 +730,15 @@ main(void)
             .search = &StringFromLiteral("Nullam"),
             .expected = StringNull(),
         },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("123"),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("a"),
+            .expected = StringNull(),
+        },
     };
 
     for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
