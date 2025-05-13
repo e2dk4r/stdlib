@@ -8,7 +8,9 @@
   X(STRING_CURSOR_TEST_ERROR_STARTS_WITH_EXPECTED_FALSE,                                                               \
     "IsStartsWith: Expected string NOT to start with the given prefix")                                                \
   X(STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_EXPECTED,                                                                   \
-    "AdvanceAfter: Cursor must advance after search string or go to end")                                              \
+    "AdvanceAfter: Cursor must advance after first occorence of search text or go to end")                             \
+  X(STRING_CURSOR_TEST_ERROR_ADVANCE_AFTER_LAST_EXPECTED,                                                              \
+    "AdvanceAfterLast: Cursor must advance after last occorence of search text or go to end")                          \
   X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_TRUE,                                                         \
     "IsRemainingEqual: Remaining text must match the search string")                                                   \
   X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE,                                                        \
