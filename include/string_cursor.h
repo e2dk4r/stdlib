@@ -40,11 +40,11 @@ StringCursorExtractSubstring(struct string_cursor *cursor, u64 length)
 internalfn struct string
 StringCursorExtractConsumed(struct string_cursor *cursor)
 {
-  struct string substring = StringNull();
+  struct string consumed = StringNull();
   if (cursor->position == 0)
-    return substring;
-  substring = StringFromBuffer(cursor->source->value, cursor->position);
-  return substring;
+    return consumed;
+  consumed = StringFromBuffer(cursor->source->value, cursor->position);
+  return consumed;
 }
 
 internalfn struct string
