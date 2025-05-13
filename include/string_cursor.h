@@ -228,6 +228,10 @@ StringCursorExtractThrough(struct string_cursor *cursor, struct string *search)
   return result;
 }
 
+/*
+ * Extract positive, negative, integers and floats from remaining.
+ * @return valid number text when number found or null when it is not
+ */
 internalfn struct string
 StringCursorExtractNumber(struct string_cursor *cursor)
 {
