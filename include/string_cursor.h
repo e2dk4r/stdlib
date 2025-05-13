@@ -294,6 +294,9 @@ StringCursorAdvanceAfter(struct string_cursor *cursor, struct string *search)
 {
   struct string remaining = StringCursorExtractRemaining(cursor);
 
+  if (remaining.length == 0)
+    return 0;
+
   u64 index = 0;
   while (index < remaining.length) {
     struct string substring = StringFromBuffer(remaining.value + index, search->length);

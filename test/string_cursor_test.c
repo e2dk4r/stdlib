@@ -362,6 +362,19 @@ main(void)
                             .length,
                 },
         },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Duis id augue nec eros faucibus ultrices."),
+                    .position = StringFromLiteral("Duis id augue nec eros faucibus ultrices.").length,
+                },
+            .search = &StringFromLiteral("Etiam"),
+            .expected =
+                {
+                    .value = 0,
+                    .position = StringFromLiteral("Duis id augue nec eros faucibus ultrices.").length,
+                },
+        },
     };
 
     for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
