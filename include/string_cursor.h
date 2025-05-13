@@ -97,6 +97,12 @@ IsStringCursorRemainingEqual(struct string_cursor *cursor, struct string *search
   return IsStringEqual(&remaining, search);
 }
 
+/*
+ * Extract until first occurence of search text found in remaining text.
+ * @return text before first occurence of search text
+ *         null if remaining text starts with search text
+ *         remaining text if search text not found
+ */
 internalfn struct string
 StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
 {
@@ -125,6 +131,13 @@ StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
   return result;
 }
 
+/*
+ * Extract and advance cursor until first occurence of search text found in
+ * remaining text.
+ * @return text before first occurence of search text
+ *         null if remaining text starts with search text
+ *         remaining text if search text not found
+ */
 internalfn struct string
 StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
 {

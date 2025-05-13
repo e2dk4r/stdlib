@@ -415,68 +415,91 @@ main(void)
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+                    .position = 0,
                 },
             .search = &StringFromLiteral("Lorem"),
+            .expected = StringNull(),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("Lorem Ipsum"),
+                    .source = &StringFromLiteral("Fusce tempor feugiat purus, quis scelerisque dui accumsan sodales."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral("Ipsum"),
-            .expected = StringFromLiteral("Lorem "),
+            .search = &StringFromLiteral("purus,"),
+            .expected = StringFromLiteral("Fusce tempor feugiat "),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
+                    .source = &StringFromLiteral("Mauris sed rutrum risus, sit amet blandit velit."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral(".2"),
-            .expected = StringFromLiteral("1"),
+            .search = &StringFromLiteral("velit."),
+            .expected = StringFromLiteral("Mauris sed rutrum risus, sit amet blandit "),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
-                    .position = 2,
+                    .source = &StringFromLiteral("Nam quis aliquet augue."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral(".3"),
-            .expected = StringFromLiteral("2"),
+            .search = &StringFromLiteral("Praesent"),
+            .expected = StringFromLiteral("Nam quis aliquet augue."),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
+                    .source = &StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
+                    .position = 0,
                 },
-            .search = &StringFromLiteral(".3"),
-            .expected = StringFromLiteral("1.2"),
+            .search = &StringFromLiteral("volutpat"),
+            .expected = StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("1.2.3"),
-                    .position = 2,
+                    .source = &StringFromLiteral("Praesent volutpat ut metus vitae ultrices. Nullam ultrices ipsum mi, "
+                                                 "id ultrices urna accumsan in."),
+                    .position = StringFromLiteral("Praesent volutpat ut metus vitae ultrices. ").length,
                 },
-            .search = &StringFromLiteral(".3"),
-            .expected = StringFromLiteral("2"),
+            .search = &StringFromLiteral("Nullam"),
+            .expected = StringNull(),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("abcdefgh"),
+                    .source = &StringFromLiteral("Morbi maximus elit libero, at blandit purus facilisis vitae. Donec "
+                                                 "sed dignissim est, quis vestibulum elit."),
+                    .position =
+                        StringFromLiteral("Morbi maximus elit libero, at blandit purus facilisis vitae. ").length,
                 },
-            .search = &StringFromLiteral("012345"),
-            .expected = StringFromLiteral("abcdefgh"),
+            .search = &StringFromLiteral("est,"),
+            .expected = StringFromLiteral("Donec sed dignissim "),
         },
         {
             .cursor =
                 {
-                    .source = &StringFromLiteral("abcdefgh"),
-                    .position = 2,
+                    .source = &StringFromLiteral(
+                        "Ut congue pulvinar aliquam. Donec volutpat viverra ex, eget convallis neque bibendum id."),
+                    .position = StringFromLiteral("Ut congue pulvinar aliquam. ").length,
                 },
-            .search = &StringFromLiteral("012345"),
-            .expected = StringFromLiteral("cdefgh"),
+            .search = &StringFromLiteral("id."),
+            .expected = StringFromLiteral("Donec volutpat viverra ex, eget convallis neque bibendum "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral(
+                        "Cras gravida, nunc vitae interdum sagittis, leo ex sollicitudin libero, at pretium nulla "
+                        "neque vel nibh. Morbi eu aliquet neque, eget imperdiet augue."),
+                    .position = StringFromLiteral("Cras gravida, nunc vitae interdum sagittis, leo ex sollicitudin "
+                                                  "libero, at pretium nulla neque vel nibh. ")
+                                    .length,
+                },
+            .search = &StringFromLiteral("Fusce"),
+            .expected = StringFromLiteral("Morbi eu aliquet neque, eget imperdiet augue."),
         },
     };
 
@@ -492,10 +515,15 @@ main(void)
         errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");
