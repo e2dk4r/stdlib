@@ -916,10 +916,15 @@ main(void)
         errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_CONSUMED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
+
         StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
         StringBuilderAppendString(sb, cursor->source);
-        StringBuilderAppendStringLiteral(sb, "' at position: ");
-        StringBuilderAppendU64(sb, cursor->position);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
         StringBuilderAppendStringLiteral(sb, "\n  expected: ");
         StringBuilderAppendString(sb, expected);
         StringBuilderAppendStringLiteral(sb, "\n       got: ");
