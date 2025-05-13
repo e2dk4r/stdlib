@@ -200,7 +200,8 @@ StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search
 
 /*
  * Extract through search text from remaining string found.
- * @return text when search found or null if cursor is at the end
+ * @return text when search found
+ *         null if search text not found
  */
 internalfn struct string
 StringCursorExtractThrough(struct string_cursor *cursor, struct string *search)
@@ -208,10 +209,13 @@ StringCursorExtractThrough(struct string_cursor *cursor, struct string *search)
   struct string result = StringNull();
   struct string remaining = StringCursorExtractRemaining(cursor);
 
+  if (remaining.length == 0 || search->length == 0)
+    return result;
+
   u64 index = 0;
   while (index < remaining.length) {
     struct string substring = StringFromBuffer(remaining.value + index, search->length);
-    if (search->length > remaining.length - index)
+    if (index + search->length > remaining.length)
       return result;
 
     if (IsStringEqual(&substring, search))

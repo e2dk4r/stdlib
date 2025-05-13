@@ -697,7 +697,7 @@ main(void)
                     .position = 0,
                 },
             .search = &StringFromLiteral("Praesent"),
-            .expected = StringFromLiteral("Nam quis aliquet augue."),
+            .expected = StringNull(),
         },
         {
             .cursor =
@@ -706,7 +706,7 @@ main(void)
                     .position = 0,
                 },
             .search = &StringFromLiteral("volutpat"),
-            .expected = StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
+            .expected = StringNull(),
         },
         {
             .cursor =
