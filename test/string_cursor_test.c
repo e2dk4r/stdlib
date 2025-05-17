@@ -723,7 +723,7 @@ main(void)
                     .source = &StringFromLiteral("Lorem Ipsum"),
                 },
             .search = StringFromLiteral("Lorem"),
-            .expected = StringNull(),
+            .expected = StringFromLiteral(""),
         },
         {
             .cursor =
@@ -756,7 +756,7 @@ main(void)
                     .position = 0,
                 },
             .search = StringFromLiteral("012345"),
-            .expected = StringFromLiteral("abcdefgh"),
+            .expected = StringNull(),
         },
         {
             .cursor =
@@ -765,7 +765,7 @@ main(void)
                     .position = 0,
                 },
             .search = StringFromLiteral("no fucking way"),
-            .expected = StringFromLiteral("Lorem"),
+            .expected = StringNull(),
         },
         {
             .cursor =
@@ -793,12 +793,11 @@ main(void)
         StringBuilderAppendStringLiteral(sb, "\n    cursor: '");
         StringBuilderAppendString(sb, cursor->source);
         StringBuilderAppendStringLiteral(sb, "'");
-        StringBuilderAppendStringLiteral(sb, "\n           ");
+        StringBuilderAppendStringLiteral(sb, "\n             ");
         for (u64 pos = 0; pos < cursor->position; pos++)
           StringBuilderAppendStringLiteral(sb, " ");
         StringBuilderAppendStringLiteral(sb, "↓");
 
-        StringBuilderAppendStringLiteral(sb, "'");
         StringBuilderAppendStringLiteral(sb, "\n    search: '");
         StringBuilderAppendString(sb, search);
         StringBuilderAppendStringLiteral(sb, "'");

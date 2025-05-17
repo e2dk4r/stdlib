@@ -179,8 +179,8 @@ StringCursorConsumeUntilOrRest(struct string_cursor *cursor, struct string *sear
 /*
  * Extract until last occurence of search text found in remaining text.
  * @return text before last occurence of search text
- *         null if remaining text starts with search text
- *         remaining text if search text not found
+ *         empty if remaining text starts with search text
+ *         null if search text not found
  */
 internalfn struct string
 StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search)
@@ -192,7 +192,7 @@ StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search
     return result;
 
   if (remaining.length < search->length)
-    return remaining;
+    return result;
 
   u64 index = remaining.length - search->length;
   while (index < remaining.length) {
@@ -200,13 +200,10 @@ StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search
     if (IsStringEqual(&substring, search))
       break;
     else if (index == 0)
-      return remaining;
+      return result;
 
     index--;
   }
-
-  if (index == 0)
-    return result;
 
   result.value = remaining.value;
   result.length = index;
@@ -216,9 +213,9 @@ StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search
 /*
  * Extract and advance cursor until last occurence of search text found in
  * remaining text.
- * @return text before last occurence of search text
- *         null if remaining text starts with search text
- *         remaining text if search text not found
+ * @return text before last occurrence of search text
+ *         empty if remaining text starts with search text
+ *         null if search text not found
  */
 internalfn struct string
 StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search)
