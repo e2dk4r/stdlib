@@ -21,6 +21,8 @@
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_LAST_EXPECTED, "ExtractUntilLast: Text extracted must match the expected")  \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED,                                                                 \
     "ExtractThrough: Text extracted through search must match the expected")                                           \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_LAST_EXPECTED,                                                            \
+    "ExtractThroughLast: Text extracted through search must match the expected")                                       \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE,                                                             \
     "ExtractNumber: Number must be extracted from cursor position")                                                    \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_FALSE,                                                            \
@@ -1018,6 +1020,87 @@ main(void)
       struct string got = StringCursorExtractThrough(cursor, search);
       if (!IsStringEqual(&got, expected)) {
         errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+
+        StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
+        StringBuilderAppendString(sb, cursor->source);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
+        StringBuilderAppendStringLiteral(sb, "\n  search: '");
+        StringBuilderAppendString(sb, search);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n  expected: '");
+        StringBuilderAppendPrintableString(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n       got: '");
+        StringBuilderAppendPrintableString(sb, &got);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // struct string StringCursorExtractThroughLast(struct string_cursor *cursor, struct string *search)
+  {
+    struct test_case {
+      struct string_cursor cursor;
+      struct string *search;
+      struct string expected;
+    } testCases[] = {
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral(
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse in eleifend augue. "
+                        "Integer eu sagittis nibh. Cras tempor et massa eget eleifend."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("eleifend"),
+            .expected =
+                StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse in eleifend "
+                                  "augue. Integer eu sagittis nibh. Cras tempor et massa eget eleifend"),
+        },
+        {
+            .cursor =
+                {
+                    .source =
+                        &StringFromLiteral("In eget pellentesque eros. Suspendisse luctus dapibus porttitor. Mauris "
+                                           "facilisis diam pellentesque, scelerisque est sit amet, ornare risus."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("pellentesque"),
+            .expected = StringFromLiteral(
+                "In eget pellentesque eros. Suspendisse luctus dapibus porttitor. Mauris facilisis diam pellentesque"),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Curabitur hendrerit molestie arcu, at fringilla nisl suscipit et."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("In"),
+            .expected = StringNull(),
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *expected = &testCase->expected;
+      struct string_cursor *cursor = &testCase->cursor;
+      struct string *search = testCase->search;
+      struct string remaining = StringCursorExtractRemaining(cursor);
+
+      struct string got = StringCursorExtractThroughLast(cursor, search);
+      if (!IsStringEqual(&got, expected)) {
+        errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_LAST_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
 
