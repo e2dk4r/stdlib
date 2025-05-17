@@ -15,10 +15,10 @@
     "IsRemainingEqual: Remaining text must match the search string")                                                   \
   X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE,                                                        \
     "IsRemainingEqual: Remaining text must NOT match the search string")                                               \
-  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED, "ConsumeUntil: Text consumed must match the expected")            \
-  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_OR_REST_EXPECTED,                                                           \
-    "ConsumeUntilOrRest: Text consumed must match the expected")                                                       \
-  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED, "ConsumeUntilLast: Text consumed must match the expected")   \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_EXPECTED, "ExtractUntil: Text extracted must match the expected")           \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_OR_REST_EXPECTED,                                                           \
+    "ExtractUntilOrRest: Text extracted must match the expected")                                                      \
+  X(STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_LAST_EXPECTED, "ExtractUntilLast: Text extracted must match the expected")  \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED,                                                                 \
     "ExtractThrough: Text extracted through search must match the expected")                                           \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_NUMBER_EXPECTED_TRUE,                                                             \
@@ -556,7 +556,7 @@ main(void)
     }
   }
 
-  // struct string StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
+  // struct string StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
   {
     struct test_case {
       struct string_cursor cursor;
@@ -670,9 +670,9 @@ main(void)
       struct string_cursor *cursor = &testCase->cursor;
       struct string *search = testCase->search;
 
-      struct string got = StringCursorConsumeUntil(cursor, search);
+      struct string got = StringCursorExtractUntil(cursor, search);
       if (!IsStringEqual(&got, expected)) {
-        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED;
+        errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
 
@@ -698,7 +698,7 @@ main(void)
     }
   }
 
-  // struct string StringCursorConsumeUntilOrRest(struct string_cursor *cursor, struct string *search)
+  // struct string StringCursorExtractUntilOrRest(struct string_cursor *cursor, struct string *search)
   {
     struct test_case {
       struct string_cursor cursor;
@@ -803,9 +803,9 @@ main(void)
       struct string_cursor *cursor = &testCase->cursor;
       struct string *search = testCase->search;
 
-      struct string got = StringCursorConsumeUntilOrRest(cursor, search);
+      struct string got = StringCursorExtractUntilOrRest(cursor, search);
       if (!IsStringEqual(&got, expected)) {
-        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_OR_REST_EXPECTED;
+        errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_OR_REST_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
 
@@ -831,7 +831,7 @@ main(void)
     }
   }
 
-  // struct string StringCursorConsumeUntilLast(struct string_cursor *cursor, struct string *search)
+  // struct string StringCursorExtractUntilLast(struct string_cursor *cursor, struct string *search)
   {
     struct test_case {
       struct string_cursor cursor;
@@ -905,9 +905,9 @@ main(void)
       struct string_cursor *cursor = &testCase->cursor;
       struct string *search = &testCase->search;
 
-      struct string got = StringCursorConsumeUntilLast(cursor, search);
+      struct string got = StringCursorExtractUntilLast(cursor, search);
       if (!IsStringEqual(&got, expected)) {
-        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED;
+        errorCode = STRING_CURSOR_TEST_ERROR_EXTRACT_UNTIL_LAST_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
 
