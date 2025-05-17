@@ -100,8 +100,8 @@ IsStringCursorRemainingEqual(struct string_cursor *cursor, struct string *search
 /*
  * Extract until first occurence of search text found in remaining text.
  * @return text before first occurence of search text
- *         null if remaining text starts with search text
- *         remaining text if search text not found
+ *         empty if remaining text starts with search text
+ *         null if search text not found
  */
 internalfn struct string
 StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
@@ -109,22 +109,20 @@ StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
   struct string result = StringNull();
   struct string remaining = StringCursorExtractRemaining(cursor);
 
+  if (remaining.length == 0 || search->length == 0)
+    return result;
+
   u64 index = 0;
-  while (index < remaining.length) {
+  while (1) {
     struct string substring = StringFromBuffer(remaining.value + index, search->length);
-    if (search->length > remaining.length - index) {
-      index = remaining.length;
-      break;
-    }
+    if (index + search->length > remaining.length)
+      return result;
 
     if (IsStringEqual(&substring, search))
       break;
 
     index++;
   }
-
-  if (index == 0)
-    return result;
 
   result.value = remaining.value;
   result.length = index;
@@ -135,13 +133,45 @@ StringCursorExtractUntil(struct string_cursor *cursor, struct string *search)
  * Extract and advance cursor until first occurence of search text found in
  * remaining text.
  * @return text before first occurence of search text
- *         null if remaining text starts with search text
- *         remaining text if search text not found
+ *         empty if remaining text starts with search text
+ *         null text if search text not found
  */
 internalfn struct string
 StringCursorConsumeUntil(struct string_cursor *cursor, struct string *search)
 {
   struct string result = StringCursorExtractUntil(cursor, search);
+  cursor->position += result.length;
+  return result;
+}
+
+/*
+ * Extract until first occurence of search text found in remaining text.
+ * @return text before first occurence of search text
+ *         empty if remaining text starts with search text
+ *         remaining text if search text not found
+ */
+internalfn struct string
+StringCursorExtractUntilOrRest(struct string_cursor *cursor, struct string *search)
+{
+  struct string result = StringCursorExtractUntil(cursor, search);
+  if (IsStringNull(&result)) {
+    struct string remaining = StringCursorExtractRemaining(cursor);
+    result = remaining;
+  }
+  return result;
+}
+
+/*
+ * Extract and advance cursor until first occurence of search text found in
+ * remaining text.
+ * @return text before first occurence of search text
+ *         empty if remaining text starts with search text
+ *         remaining text if search text not found
+ */
+internalfn struct string
+StringCursorConsumeUntilOrRest(struct string_cursor *cursor, struct string *search)
+{
+  struct string result = StringCursorExtractUntilOrRest(cursor, search);
   cursor->position += result.length;
   return result;
 }

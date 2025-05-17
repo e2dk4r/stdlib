@@ -16,6 +16,8 @@
   X(STRING_CURSOR_TEST_ERROR_IS_REMAINING_EQUAL_EXPECTED_FALSE,                                                        \
     "IsRemainingEqual: Remaining text must NOT match the search string")                                               \
   X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED, "ConsumeUntil: Text consumed must match the expected")            \
+  X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_OR_REST_EXPECTED,                                                           \
+    "ConsumeUntilOrRest: Text consumed must match the expected")                                                       \
   X(STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_LAST_EXPECTED, "ConsumeUntilLast: Text consumed must match the expected")   \
   X(STRING_CURSOR_TEST_ERROR_EXTRACT_THROUGH_EXPECTED,                                                                 \
     "ExtractThrough: Text extracted through search must match the expected")                                           \
@@ -447,7 +449,149 @@ main(void)
                     .position = 0,
                 },
             .search = &StringFromLiteral("Lorem"),
+            .expected = StringFromLiteral(""),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Fusce tempor feugiat purus, quis scelerisque dui accumsan sodales."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("purus,"),
+            .expected = StringFromLiteral("Fusce tempor feugiat "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Mauris sed rutrum risus, sit amet blandit velit."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("velit."),
+            .expected = StringFromLiteral("Mauris sed rutrum risus, sit amet blandit "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Nam quis aliquet augue."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("Praesent"),
             .expected = StringNull(),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Praesent nec nibh ut arcu semper pharetra."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("volutpat"),
+            .expected = StringNull(),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Praesent volutpat ut metus vitae ultrices. Nullam ultrices ipsum mi, "
+                                                 "id ultrices urna accumsan in."),
+                    .position = StringFromLiteral("Praesent volutpat ut metus vitae ultrices. ").length,
+                },
+            .search = &StringFromLiteral("Nullam"),
+            .expected = StringFromLiteral(""),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Morbi maximus elit libero, at blandit purus facilisis vitae. Donec "
+                                                 "sed dignissim est, quis vestibulum elit."),
+                    .position =
+                        StringFromLiteral("Morbi maximus elit libero, at blandit purus facilisis vitae. ").length,
+                },
+            .search = &StringFromLiteral("est,"),
+            .expected = StringFromLiteral("Donec sed dignissim "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral(
+                        "Ut congue pulvinar aliquam. Donec volutpat viverra ex, eget convallis neque bibendum id."),
+                    .position = StringFromLiteral("Ut congue pulvinar aliquam. ").length,
+                },
+            .search = &StringFromLiteral("id."),
+            .expected = StringFromLiteral("Donec volutpat viverra ex, eget convallis neque bibendum "),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral(
+                        "Cras gravida, nunc vitae interdum sagittis, leo ex sollicitudin libero, at pretium nulla "
+                        "neque vel nibh. Morbi eu aliquet neque, eget imperdiet augue."),
+                    .position = StringFromLiteral("Cras gravida, nunc vitae interdum sagittis, leo ex sollicitudin "
+                                                  "libero, at pretium nulla neque vel nibh. ")
+                                    .length,
+                },
+            .search = &StringFromLiteral("Fusce"),
+            .expected = StringNull(),
+        },
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("123"),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("a"),
+            .expected = StringNull(),
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *expected = &testCase->expected;
+      struct string_cursor *cursor = &testCase->cursor;
+      struct string *search = testCase->search;
+
+      struct string got = StringCursorConsumeUntil(cursor, search);
+      if (!IsStringEqual(&got, expected)) {
+        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+
+        StringBuilderAppendStringLiteral(sb, "\n  cursor: '");
+        StringBuilderAppendString(sb, cursor->source);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n           ");
+        for (u64 pos = 0; pos < cursor->position; pos++)
+          StringBuilderAppendStringLiteral(sb, " ");
+        StringBuilderAppendStringLiteral(sb, "↓");
+
+        StringBuilderAppendStringLiteral(sb, "\n  search: '");
+        StringBuilderAppendString(sb, search);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n  expected: ");
+        StringBuilderAppendPrintableString(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "\n       got: ");
+        StringBuilderAppendPrintableString(sb, &got);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // struct string StringCursorConsumeUntilOrRest(struct string_cursor *cursor, struct string *search)
+  {
+    struct test_case {
+      struct string_cursor cursor;
+      struct string *search;
+      struct string expected;
+    } testCases[] = {
+        {
+            .cursor =
+                {
+                    .source = &StringFromLiteral("Lorem ipsum dolor sit amet, consectetur adipiscing elit."),
+                    .position = 0,
+                },
+            .search = &StringFromLiteral("Lorem"),
+            .expected = StringFromLiteral(""),
         },
         {
             .cursor =
@@ -493,7 +637,7 @@ main(void)
                     .position = StringFromLiteral("Praesent volutpat ut metus vitae ultrices. ").length,
                 },
             .search = &StringFromLiteral("Nullam"),
-            .expected = StringNull(),
+            .expected = StringFromLiteral(""),
         },
         {
             .cursor =
@@ -538,9 +682,9 @@ main(void)
       struct string_cursor *cursor = &testCase->cursor;
       struct string *search = testCase->search;
 
-      struct string got = StringCursorConsumeUntil(cursor, search);
+      struct string got = StringCursorConsumeUntilOrRest(cursor, search);
       if (!IsStringEqual(&got, expected)) {
-        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_EXPECTED;
+        errorCode = STRING_CURSOR_TEST_ERROR_CONSUME_UNTIL_OR_REST_EXPECTED;
 
         StringBuilderAppendErrorMessage(sb, errorCode);
 
