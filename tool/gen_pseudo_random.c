@@ -383,7 +383,7 @@ main(int argc, char *argv[])
     string *variableMagicStart = &StringFromLiteral("$$");
     string *variableMagicEnd = variableMagicStart;
 
-    string beforeVariable = StringCursorConsumeUntil(&templateCursor, variableMagicStart);
+    string beforeVariable = StringCursorConsumeUntilOrRest(&templateCursor, variableMagicStart);
     if (beforeVariable.length != 0)
       PrintString(&beforeVariable);
     if (IsStringCursorAtEnd(&templateCursor))
