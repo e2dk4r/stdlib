@@ -1,19 +1,7 @@
-#include <time.h>
-
+#include "platform.h"
 #include "print.h"
 #include "string_builder.h"
 #include "text.h"
-
-// returns current time in nanoseconds
-internalfn u64
-now(void)
-{
-  struct timespec ts;
-  if (clock_gettime(CLOCK_MONOTONIC, &ts))
-    runtime_assert(0 && "clock is unstable");
-
-  return (u64)ts.tv_sec * 1000000000 /* 1e9 */ + (u64)ts.tv_nsec;
-}
 
 internalfn void
 StringBuilderAppendDuration(string_builder *sb, struct duration *duration)
@@ -154,11 +142,11 @@ main(void)
         "8)PAP{CWc}#I%*6Clie@y`H1'Xz$(#S\"Nl_0xL'@+!]@]{)%`Ithu.aAsN%s7o,LOg[GA\"7ndD6?k6CWACW7J0JI!^uEj\"M'o(D~Z~o^~"
         "JFeQ*G]zEb)`:#Qc!yhb3V");
     u64 iterations = 10000000;
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       IsStringEqual(left, right);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -196,12 +184,12 @@ main(void)
   {
     struct string *input = &StringFromLiteral("78wk46day27hr08min14sec");
     u64 iterations = 1000000;
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       struct duration duration;
       ParseDuration(input, &duration);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -224,12 +212,12 @@ main(void)
   {
     struct string *input = &StringFromLiteral("11347919234869594277");
     u64 iterations = 1000000;
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       u64 value;
       ParseU64(input, &value);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -254,11 +242,11 @@ main(void)
         .length = ARRAY_COUNT(buffer),
     };
 
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       FormatU64(&stringBuffer, input);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -276,12 +264,12 @@ main(void)
   {
     struct string *input = &StringFromLiteral("d6170a8bea");
     u64 iterations = 1000000;
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       u64 value;
       ParseHex(input, &value);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -306,11 +294,11 @@ main(void)
         .length = ARRAY_COUNT(buffer),
     };
 
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       FormatHex(&stringBuffer, input);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -336,11 +324,11 @@ main(void)
         .length = ARRAY_COUNT(buffer),
     };
 
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       FormatF32Slow(&stringBuffer, input, 4);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
@@ -365,11 +353,11 @@ main(void)
         .length = ARRAY_COUNT(buffer),
     };
 
-    u64 start = now();
+    u64 start = NowInNanoseconds();
     for (u64 iteration = 0; iteration < iterations; iteration++) {
       FormatF32(&stringBuffer, input, 4);
     }
-    struct duration elapsed = DurationBetweenNanoseconds(start, now());
+    struct duration elapsed = DurationBetweenNanoseconds(start, NowInNanoseconds());
     StringBuilderAppendStringLiteral(sb, "  function: ");
     StringBuilderAppendString(sb, function);
     StringBuilderAppendStringLiteral(sb, "\niterations: ");
