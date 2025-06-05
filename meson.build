@@ -16,10 +16,10 @@ is_compiler_gcc   = (cc.get_id() == 'gcc'  )
 is_compiler_clang = (cc.get_id() == 'clang')
 is_compiler_msvc  = (cc.get_id() == 'msvc' )
 
-is_platform_linux   = (build_machine.system() == 'linux'  )
-is_platform_windows = (build_machine.system() == 'windows')
-is_platform_darwin  = (build_machine.system() == 'darwin' )
-is_platform_freebsd = (build_machine.system() == 'freebsd')
+is_platform_linux   = (host_machine.system() == 'linux'  )
+is_platform_windows = (host_machine.system() == 'windows')
+is_platform_darwin  = (host_machine.system() == 'darwin' )
+is_platform_freebsd = (host_machine.system() == 'freebsd')
 
 add_project_arguments(
   [

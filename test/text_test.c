@@ -1312,6 +1312,16 @@ main(void)
       struct string input;
       struct string expected;
     } testCases[] = {
+#if IS_PLATFORM_WINDOWS
+        {
+            .input = StringFromLiteral("C:\\Users\\e2dk4r"),
+            .expected = StringFromLiteral("C:\\Users"),
+        },
+        {
+            .input = StringFromLiteral("C:\\Windows\\system32\\notepad.exe"),
+            .expected = StringFromLiteral("C:\\Windows\\system32"),
+        },
+#else
         {
             .input = StringFromLiteral("/usr/bin/ls"),
             .expected = StringFromLiteral("/usr/bin"),
@@ -1320,6 +1330,7 @@ main(void)
             .input = StringFromLiteral("/usr"),
             .expected = StringFromLiteral("/"),
         },
+#endif
         {
             .input = StringNull(),
             .expected = StringNull(),
