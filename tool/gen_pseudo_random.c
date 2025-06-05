@@ -92,13 +92,13 @@ PlatformReadFile(struct string *buffer, struct string *path, struct string *cont
     struct string remainingBuffer = StringCursorExtractRemaining(&bufferCursor);
     if (IsStringCursorAtEnd(&bufferCursor)) {
       error = IO_ERROR_BUFFER_OUT_OF_MEMORY;
-      break;
+      goto failure;
     }
 
     s64 readBytes = read(fd, remainingBuffer.value, remainingBuffer.length);
     if (readBytes == -1) {
       error = IO_ERROR_PLATFORM;
-      return error;
+      goto failure;
     } else if (readBytes == 0) {
       // end of file
       break;
