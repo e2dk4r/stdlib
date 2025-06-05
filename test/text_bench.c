@@ -25,6 +25,11 @@ StringBuilderAppendDuration(string_builder *sb, struct duration *duration)
 
   u64 remaining = duration->ns;
 
+  if (remaining == 0) {
+    StringBuilderAppendStringLiteral(sb, "0");
+    return;
+  }
+
   if (remaining >= weekInNanoseconds) {
     u64 weeks = remaining / weekInNanoseconds;
     StringBuilderAppendU64(sb, weeks);
@@ -78,8 +83,6 @@ StringBuilderAppendDuration(string_builder *sb, struct duration *duration)
     u64 nanoseconds = remaining;
     StringBuilderAppendU64(sb, nanoseconds);
     StringBuilderAppendString(sb, &nanosecondUnitString);
-  } else {
-    StringBuilderAppendStringLiteral(sb, "0");
   }
 }
 
