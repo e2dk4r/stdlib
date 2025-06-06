@@ -173,43 +173,47 @@ main(int argc, char *argv[])
   u32 randomNumberMinIndex = 0;
   u32 randomNumberMaxIndex = 0;
   {
-    memory_temp tempMemory = MemoryTempBegin(&stackMemory);
-    string *randomBuffer = MakeString(tempMemory.arena, options->randomNumberCount * bytesPerRandomNumber);
-    string_cursor randomCursor = StringCursorFromString(randomBuffer);
-    randomCursor.position = StringCursorRemainingLength(&randomCursor);
+    u32 batchCount = 4096;
+    for (u32 batch = 0; batch < options->randomNumberCount; batch += batchCount) {
+      memory_temp tempMemory = MemoryTempBegin(&stackMemory);
+      string *randomBuffer = MakeString(tempMemory.arena, batchCount * bytesPerRandomNumber);
 
-    u32 min = 0;
-    u32 max = 0;
-    for (u32 randomNumberIndex = 0; randomNumberIndex < options->randomNumberCount; randomNumberIndex++) {
-      if (IsStringCursorAtEnd(&randomCursor)) {
-        enum platform_error error = PlatformGetRandom(randomBuffer);
-        if (error != IO_ERROR_NONE) {
-          StringBuilderAppendStringLiteral(sb, "Error: GetRandom() ");
-          if (error == IO_ERROR_BUFFER_PARTIALLY_FILLED)
-            StringBuilderAppendStringLiteral(sb, "insufficent entropy");
-          else if (error == IO_ERROR_PLATFORM)
-            StringBuilderAppendPlatformError(sb);
-          StringBuilderAppendStringLiteral(sb, "\n");
-          struct string message = StringBuilderFlush(sb);
-          PrintString(&message);
-          return -1;
+      enum platform_error error = PlatformGetRandom(randomBuffer);
+      if (error != IO_ERROR_NONE) {
+        StringBuilderAppendStringLiteral(sb, "Error: GetRandom() ");
+        if (error == IO_ERROR_BUFFER_PARTIALLY_FILLED)
+          StringBuilderAppendStringLiteral(sb, "insufficent entropy");
+        else if (error == IO_ERROR_PLATFORM)
+          StringBuilderAppendPlatformError(sb);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string message = StringBuilderFlush(sb);
+        PrintString(&message);
+        return -1;
+      }
+      string_cursor randomCursor = StringCursorFromString(randomBuffer);
+
+      // valid after first batch, overwritten at first random number
+      u32 min = *(randomNumbers + randomNumberMinIndex);
+      u32 max = *(randomNumbers + randomNumberMaxIndex);
+
+      for (u32 randomNumberIndex = batch; randomNumberIndex < Minimum(options->randomNumberCount, batch + batchCount);
+           randomNumberIndex++) {
+        string slice = StringCursorConsumeSubstring(&randomCursor, bytesPerRandomNumber);
+
+        u32 randomNumber = 0;
+        for (u32 sliceIndex = 0; sliceIndex < slice.length; sliceIndex++) {
+          randomNumber *= 10;
+          randomNumber += slice.value[sliceIndex];
         }
 
-        randomCursor = StringCursorFromString(randomBuffer);
-      }
+        *(randomNumbers + randomNumberIndex) = randomNumber;
 
-      string slice = StringCursorConsumeSubstring(&randomCursor, bytesPerRandomNumber);
+        if (randomNumberIndex == 0) {
+          // only at first batch
+          min = randomNumber;
+          max = randomNumber;
+        }
 
-      u32 randomNumber = 0;
-      for (u32 sliceIndex = 0; sliceIndex < slice.length; sliceIndex++) {
-        randomNumber *= 10;
-        randomNumber += slice.value[sliceIndex];
-      }
-
-      if (randomNumberIndex == 0) {
-        min = randomNumber;
-        max = randomNumber;
-      } else {
         if (randomNumber < min) {
           min = randomNumber;
           randomNumberMinIndex = randomNumberIndex;
@@ -221,10 +225,8 @@ main(int argc, char *argv[])
         }
       }
 
-      *(randomNumbers + randomNumberIndex) = randomNumber;
+      MemoryTempEnd(&tempMemory);
     }
-
-    MemoryTempEnd(&tempMemory);
   }
 
   // Read template
@@ -284,23 +286,33 @@ main(int argc, char *argv[])
     templateCursor.position += variableMagicEnd->length;
 
     if (IsStringEqual(&variable, &StringFromLiteral("RANDOM_NUMBER_TABLE"))) {
-      for (u32 randomNumberIndex = 0; randomNumberIndex < options->randomNumberCount; randomNumberIndex++) {
-        u32 randomNumber = *(randomNumbers + randomNumberIndex);
+      u32 batchCount = 8192;
+      for (u32 batch = 0; batch < options->randomNumberCount; batch += batchCount) {
+        for (u32 randomNumberIndex = batch; randomNumberIndex < Minimum(batch + batchCount, options->randomNumberCount);
+             randomNumberIndex++) {
+          u32 randomNumber = *(randomNumbers + randomNumberIndex);
 
-        StringBuilderAppendStringLiteral(sb, "0x");
-        string randomNumberInHex = FormatHex(sb->stringBuffer, randomNumber);
-        if (randomNumberInHex.length < 8) {
-          string sliced = StringSlice(&StringFromLiteral("00000000"), 0, 8 - randomNumberInHex.length);
-          StringBuilderAppendString(sb, &sliced);
+          StringBuilderAppendStringLiteral(sb, "0x");
+          string randomNumberInHex = FormatHex(sb->stringBuffer, randomNumber);
+          if (randomNumberInHex.length < 8) {
+            string sliced = StringSlice(&StringFromLiteral("00000000"), 0, 8 - randomNumberInHex.length);
+            StringBuilderAppendString(sb, &sliced);
+          }
+          StringBuilderAppendString(sb, &randomNumberInHex);
+
+          b8 isNotLastOne = randomNumberIndex + 1 != options->randomNumberCount;
+          if (isNotLastOne)
+            StringBuilderAppendStringLiteral(sb, ", ");
+
+          u32 maxRandomNumberPerLine = 16;
+          b8 isMaxPerLine = (randomNumberIndex + 1) % maxRandomNumberPerLine == 0;
+          if (isMaxPerLine && isNotLastOne)
+            StringBuilderAppendStringLiteral(sb, "\n");
         }
-        StringBuilderAppendString(sb, &randomNumberInHex);
 
-        if (randomNumberIndex + 1 != options->randomNumberCount)
-          StringBuilderAppendStringLiteral(sb, ", ");
+        string message = StringBuilderFlush(sb);
+        PrintString(&message);
       }
-
-      string message = StringBuilderFlush(sb);
-      PrintString(&message);
     } else if (IsStringEqual(&variable, &StringFromLiteral("RANDOM_NUMBER_COUNT"))) {
       StringBuilderAppendU64(sb, options->randomNumberCount);
       string message = StringBuilderFlush(sb);
