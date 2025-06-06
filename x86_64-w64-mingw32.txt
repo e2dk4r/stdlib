@@ -1,9 +1,9 @@
 [binaries]
-c           = '/usr/lib/mingw64-toolchain/bin/x86_64-w64-mingw32-gcc'
-cpp         = '/usr/lib/mingw64-toolchain/bin/x86_64-w64-mingw32-g++'
-ar          = '/usr/lib/mingw64-toolchain/bin/x86_64-w64-mingw32-ar'
-windres     = '/usr/lib/mingw64-toolchain/bin/x86_64-w64-mingw32-windres'
-strip       = '/usr/lib/mingw64-toolchain/bin/x86_64-w64-mingw32-strip'
+c           = 'x86_64-w64-mingw32-gcc'
+cpp         = 'x86_64-w64-mingw32-g++'
+ar          = 'x86_64-w64-mingw32-ar'
+windres     = 'x86_64-w64-mingw32-windres'
+strip       = 'x86_64-w64-mingw32-strip'
 exe_wrapper = 'wine64'
 
 [host_machine]
