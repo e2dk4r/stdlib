@@ -33,7 +33,7 @@ main(int argc, char *argv[])
     KILOBYTES = (1 << 10),
     MEGABYTES = (1 << 20),
   };
-  u8 stackBuffer[1 * MEGABYTES];
+  u8 stackBuffer[2 * MEGABYTES];
   memory_arena stackMemory = {
       .block = stackBuffer,
       .total = ARRAY_COUNT(stackBuffer),
