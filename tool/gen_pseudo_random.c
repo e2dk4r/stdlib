@@ -60,7 +60,7 @@ main(int argc, char *argv[])
       }
 
       string value = StringFromZeroTerminated((u8 *)argv[argumentIndex], 1024);
-      enum platform_error error;
+      enum platform_error error = IO_ERROR_NONE;
       if (!PlatformIsFileExists(&value, &error)) {
         StringBuilderAppendStringLiteral(sb, "Template at '");
         StringBuilderAppendString(sb, &value);
