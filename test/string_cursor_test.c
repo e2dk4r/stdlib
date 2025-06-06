@@ -1,4 +1,4 @@
-#include "print.h"
+#include "platform.h"
 #include "string_builder.h"
 #include "string_cursor.h"
 

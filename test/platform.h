@@ -1,4 +1,8 @@
+#include "text.h"
 #include "type.h"
+
+internalfn void
+PrintString(struct string *string);
 
 internalfn u64
 NowInNanoseconds(void);

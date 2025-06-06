@@ -2,6 +2,13 @@
 
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
+#include <unistd.h>
+
+internalfn void
+PrintString(struct string *string)
+{
+  (void)write(STDOUT_FILENO, string->value, string->length);
+}
 
 internalfn u64
 NowInNanoseconds(void)

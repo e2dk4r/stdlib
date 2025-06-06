@@ -1,5 +1,5 @@
 #include "math.h"
-#include "print.h"
+#include "platform.h"
 #include "string_builder.h"
 
 #define TEST_ERROR_LIST(X)                                                                                             \

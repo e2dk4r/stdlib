@@ -1,6 +1,13 @@
 #include "assert.h"
 
-#include <profileapi.h>
+#include <windows.h>
+
+internalfn void
+PrintString(struct string *string)
+{
+  HANDLE outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+  (void)WriteFile(outputHandle, string->value, (u32)string->length, 0, 0);
+}
 
 internalfn u64
 NowInNanoseconds(void)

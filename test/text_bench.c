@@ -1,5 +1,4 @@
 #include "platform.h"
-#include "print.h"
 #include "string_builder.h"
 #include "text.h"
 
