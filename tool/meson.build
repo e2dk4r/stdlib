@@ -1,4 +1,5 @@
 c_args = []
+link_args = []
 dependencies = []
 
 if is_platform_linux
@@ -20,6 +21,7 @@ if not is_platform_windows
 endif
 
 if is_platform_windows
+  link_args += '-Wl,--stack,4194304' # 4 MiB
   lib_bcrypt = cc.find_library('bcrypt')
   dependencies += lib_bcrypt
 endif
@@ -27,6 +29,7 @@ endif
 executable(
   'gen_pseudo_random',
   'gen_pseudo_random.c',
+  link_args: link_args,
   dependencies: dependencies,
   c_args: c_args,
   include_directories: '../include',
