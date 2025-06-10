@@ -234,7 +234,7 @@ main(void)
           &StringFromLiteral("PTmTivmdRIxMFroaLtsVIWooGFTfTlEKueBimsPIzMGKRczMJvDCdwyWiNEYKCoU");
       debug_assert(buffer->length <= randomString->length && "could not fill the buffer with invalid data");
       struct string randomStringSlice = StringSlice(randomString, 0, buffer->length);
-      memcpy(buffer->value, randomStringSlice.value, randomStringSlice.length);
+      MemoryCopy(buffer->value, randomStringSlice.value, randomStringSlice.length);
 
       struct string got = FormatF32(buffer, value, fractionCount);
 

@@ -33,7 +33,7 @@ main(void)
       .block = stackBuffer,
       .total = ARRAY_COUNT(stackBuffer),
   };
-  bzero(stackMemory.block, stackMemory.total);
+  MemoryClear(stackMemory.block, stackMemory.total);
   memory_temp tempMemory;
 
   // MemPush(memory_block *mem, u64 size)
@@ -71,7 +71,7 @@ main(void)
     }
   }
 
-  bzero(stackMemory.block, stackMemory.used);
+  MemoryClear(stackMemory.block, stackMemory.used);
   MemoryTempEnd(&tempMemory);
 
 end:
