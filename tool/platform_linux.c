@@ -61,8 +61,20 @@ PlatformReadFile(struct string *buffer, struct string *path, struct string *cont
     return IO_ERROR_FILE_NOT_FOUND;
   }
 
+  u64 fileSize = 0;
+  {
+    struct stat sb;
+    if (fstat(fd, &sb) < 0)
+      return IO_ERROR_PLATFORM;
+
+    if ((sb.st_mode & S_IFMT) != S_IFREG)
+      return IO_ERROR_FILE_NOT_FOUND;
+
+    fileSize = (u64)sb.st_size;
+  }
+
   struct string_cursor bufferCursor = StringCursorFromString(buffer);
-  while (1) {
+  while (bufferCursor.position != fileSize) {
     struct string remainingBuffer = StringCursorExtractRemaining(&bufferCursor);
     if (IsStringCursorAtEnd(&bufferCursor)) {
       error = IO_ERROR_BUFFER_OUT_OF_MEMORY;
