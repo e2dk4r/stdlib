@@ -67,7 +67,7 @@ PlatformReadFile(struct string *buffer, struct string *path, struct string *cont
     if (fstat(fd, &sb) < 0)
       return IO_ERROR_PLATFORM;
 
-    if ((sb.st_mode & S_IFMT) != S_IFREG)
+    if (S_ISREG(sb.st_mode))
       return IO_ERROR_FILE_NOT_FOUND;
 
     fileSize = (u64)sb.st_size;
