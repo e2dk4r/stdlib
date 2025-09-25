@@ -4,6 +4,8 @@
 
 #define TEST_ERROR_LIST(XX)                                                                                            \
   XX(TEXT_TEST_ERROR_STRING_FROM_ZERO_TERMINATED, "Failed to create string from zero terminated c-string")             \
+  XX(TEXT_TEST_ERROR_STRING_SLICE_FROM, "Failed to slice string from specified index to the end")                      \
+  XX(TEXT_TEST_ERROR_STRING_SLICE_TO, "Failed to slice string from beginning to specified index")                      \
   XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_TRUE, "Strings must be equal")                                            \
   XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_FALSE, "Strings must NOT be equal")                                       \
   XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_TRUE, "Strings that are case ignored must be equal")          \
@@ -146,6 +148,86 @@ main(void)
         StringBuilderAppendU64(sb, expected);
         StringBuilderAppendStringLiteral(sb, "\n       got: ");
         StringBuilderAppendU64(sb, got.length);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // struct string StringSliceFrom(struct string *string, u64 startIndex)
+  {
+    struct test_case {
+      struct string input;
+      u64 startIndex;
+      struct string expected;
+    } testCases[] = {
+        {
+            .input = StringFromLiteral("--json"),
+            .startIndex = 2,
+            .expected = StringFromLiteral("json"),
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      u64 startIndex = testCase->startIndex;
+      struct string *input = &testCase->input;
+      struct string *expected = &testCase->expected;
+      struct string got = StringSliceFrom(input, startIndex);
+      if (!IsStringEqual(&got, expected)) {
+        errorCode = TEXT_TEST_ERROR_STRING_SLICE_FROM;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+        StringBuilderAppendStringLiteral(sb, "\n     input: ");
+        StringBuilderAppendString(sb, input);
+        StringBuilderAppendStringLiteral(sb, "\n     index: ");
+        StringBuilderAppendU64(sb, startIndex);
+        StringBuilderAppendStringLiteral(sb, "\n  expected: ");
+        StringBuilderAppendPrintableString(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "\n       got: ");
+        StringBuilderAppendPrintableString(sb, &got);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // struct string StringSliceTo(struct string *string, u64 stopIndex)
+  {
+    struct test_case {
+      struct string input;
+      u64 stopIndex;
+      struct string expected;
+    } testCases[] = {
+        {
+            .input = StringFromLiteral("--json"),
+            .stopIndex = 2,
+            .expected = StringFromLiteral("--"),
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      u64 stopIndex = testCase->stopIndex;
+      struct string *input = &testCase->input;
+      struct string *expected = &testCase->expected;
+      struct string got = StringSliceTo(input, stopIndex);
+      if (!IsStringEqual(&got, expected)) {
+        errorCode = TEXT_TEST_ERROR_STRING_SLICE_TO;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+        StringBuilderAppendStringLiteral(sb, "\n     input: ");
+        StringBuilderAppendString(sb, input);
+        StringBuilderAppendStringLiteral(sb, "\n     index: ");
+        StringBuilderAppendU64(sb, stopIndex);
+        StringBuilderAppendStringLiteral(sb, "\n  expected: ");
+        StringBuilderAppendPrintableString(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "\n       got: ");
+        StringBuilderAppendPrintableString(sb, &got);
         StringBuilderAppendStringLiteral(sb, "\n");
         struct string errorMessage = StringBuilderFlush(sb);
         PrintString(&errorMessage);

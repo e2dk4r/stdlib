@@ -76,13 +76,27 @@ MakeStringAligned(memory_arena *arena, u64 length, u64 alignment)
 }
 
 static inline struct string
-StringSlice(struct string *string, u64 startIndex, u64 endIndex)
+StringSlice(struct string *string, u64 startIndex, u64 stopIndex)
 {
   debug_assert(string != 0);
-  debug_assert(startIndex < endIndex);
-  debug_assert(endIndex - startIndex <= string->length);
-  struct string sliced = {.value = string->value + startIndex, .length = endIndex - startIndex};
+  debug_assert(startIndex < stopIndex);
+  debug_assert(stopIndex - startIndex <= string->length);
+  struct string sliced = {.value = string->value + startIndex, .length = stopIndex - startIndex};
   return sliced;
+}
+
+// Returns slice of string from start index to the end
+static inline struct string
+StringSliceFrom(struct string *string, u64 startIndex)
+{
+  return StringSlice(string, startIndex, string->length);
+}
+
+// Returns slice of string from beginning to stop index
+static inline struct string
+StringSliceTo(struct string *string, u64 stopIndex)
+{
+  return StringSlice(string, 0, stopIndex);
 }
 
 static inline b8
