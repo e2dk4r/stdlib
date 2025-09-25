@@ -25,6 +25,16 @@ StringBuilderClear(struct string_builder *stringBuilder)
   stringBuilder->length = 0;
 }
 
+/*
+ * Allocate string builder from memory
+ * @param arena memory arena used for allocation
+ * @param outBufferLength what would be length of result string
+ *                        [1, infinite)
+ * @param stringBufferLength what would be length of string that used for convertion of values.
+ *                           0 means you do not convert any value to string (not using AppendU64(), AppendF32(), etc).
+ *                           32 is default value. Covers most of cases.
+ *                           [0, infinite)
+ */
 static string_builder *
 MakeStringBuilder(memory_arena *arena, u64 outBufferLength, u64 stringBufferLength)
 {
