@@ -773,6 +773,28 @@ static inline struct string
 FormatF32(struct string *stringBuffer, f32 value, u32 fractionCount)
 {
   debug_assert(fractionCount >= 1 && fractionCount <= 51);
+  u64 powersOf10[] = {
+      1ull,                    // 10^0
+      10ull,                   // 10^1
+      100ull,                  // 10^2
+      1000ull,                 // 10^3
+      10000ull,                // 10^4
+      100000ull,               // 10^5
+      1000000ull,              // 10^6
+      10000000ull,             // 10^7
+      100000000ull,            // 10^8
+      1000000000ull,           // 10^9
+      10000000000ull,          // 10^10
+      100000000000ull,         // 10^11
+      1000000000000ull,        // 10^12
+      10000000000000ull,       // 10^13
+      100000000000000ull,      // 10^14
+      1000000000000000ull,     // 10^15
+      10000000000000000ull,    // 10^16
+      100000000000000000ull,   // 10^17
+      1000000000000000000ull,  // 10^18
+      10000000000000000000ull, // 10^19
+  };
 
   /*****************************************************************
    * INITIAL BUFFER CAPACITY CHECK
@@ -809,7 +831,7 @@ FormatF32(struct string *stringBuffer, f32 value, u32 fractionCount)
 
   // Determine mantissa digit count
   u32 mantissaDigitCount = 1;
-  while (mantissaDigitCount < ARRAY_COUNT(POWERS_OF_10) && mantissa >= POWERS_OF_10[mantissaDigitCount])
+  while (mantissaDigitCount < ARRAY_COUNT(powersOf10) && mantissa >= powersOf10[mantissaDigitCount])
     mantissaDigitCount++;
 
   // Calculate positions for point and zero padding
@@ -892,7 +914,7 @@ FormatF32(struct string *stringBuffer, f32 value, u32 fractionCount)
     if (index == pointIndex)
       index++;
 
-    u64 power = POWERS_OF_10[mantissaDigitCount - 1];
+    u64 power = powersOf10[mantissaDigitCount - 1];
     u64 digit = mantissa / power;
 
     stringBuffer->value[index] = (u8)digit + '0';

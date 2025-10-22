@@ -577,8 +577,31 @@ FormatU64(struct string *stringBuffer, u64 value)
   if (!stringBuffer || stringBuffer->length == 0)
     return result;
 
+  u64 powersOf10[] = {
+      1ull,                    // 10^0
+      10ull,                   // 10^1
+      100ull,                  // 10^2
+      1000ull,                 // 10^3
+      10000ull,                // 10^4
+      100000ull,               // 10^5
+      1000000ull,              // 10^6
+      10000000ull,             // 10^7
+      100000000ull,            // 10^8
+      1000000000ull,           // 10^9
+      10000000000ull,          // 10^10
+      100000000000ull,         // 10^11
+      1000000000000ull,        // 10^12
+      10000000000000ull,       // 10^13
+      100000000000000ull,      // 10^14
+      1000000000000000ull,     // 10^15
+      10000000000000000ull,    // 10^16
+      100000000000000000ull,   // 10^17
+      1000000000000000000ull,  // 10^18
+      10000000000000000000ull, // 10^19
+  };
+
   u64 countOfDigits = 1;
-  while (countOfDigits < ARRAY_COUNT(POWERS_OF_10) && value >= POWERS_OF_10[countOfDigits])
+  while (countOfDigits < ARRAY_COUNT(powersOf10) && value >= powersOf10[countOfDigits])
     countOfDigits++;
 
   if (countOfDigits > stringBuffer->length)
@@ -586,7 +609,7 @@ FormatU64(struct string *stringBuffer, u64 value)
 
   u64 index = 0;
   while (countOfDigits > 0) {
-    u64 power = POWERS_OF_10[countOfDigits - 1];
+    u64 power = powersOf10[countOfDigits - 1];
     u64 digit = value / power;
 
     // turn digit into character
