@@ -969,3 +969,36 @@ StringSplitBySpace(struct string *string, u64 *splitCount, struct string *splits
 {
   return StringSplit(string, &StringFromLiteral(" "), splitCount, splits);
 }
+
+struct string_cut {
+  b8 ok : 1;
+  struct string before;
+  struct string after;
+};
+typedef struct string_cut string_cut;
+
+static inline struct string_cut
+StringCut(struct string *string, struct string *separator)
+{
+  struct string_cut result = {
+      .ok = 0,
+  };
+  if (!string)
+    return result;
+
+  for (u64 index = 0; index < string->length; index++) {
+    struct string substring = StringFromBuffer(string->value + index, separator->length);
+    if (separator->length > string->length - index)
+      break;
+
+    if (IsStringEqual(&substring, separator)) {
+      result.ok = 1;
+      result.before = StringFromBuffer(string->value, index);
+      result.after =
+          StringFromBuffer(string->value + (index + separator->length), string->length - (index + separator->length));
+      break;
+    }
+  }
+
+  return result;
+}

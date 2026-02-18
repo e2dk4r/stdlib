@@ -2,44 +2,48 @@
 #include "string_builder.h"
 #include "text.h"
 
-#define TEST_ERROR_LIST(XX)                                                                                            \
-  XX(TEXT_TEST_ERROR_STRING_FROM_ZERO_TERMINATED, "Failed to create string from zero terminated c-string")             \
-  XX(TEXT_TEST_ERROR_STRING_SLICE_FROM, "Failed to slice string from specified index to the end")                      \
-  XX(TEXT_TEST_ERROR_STRING_SLICE_TO, "Failed to slice string from beginning to specified index")                      \
-  XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_TRUE, "Strings must be equal")                                            \
-  XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_FALSE, "Strings must NOT be equal")                                       \
-  XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_TRUE, "Strings that are case ignored must be equal")          \
-  XX(TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_FALSE, "Strings that are case ignored must NOT be equal")     \
-  XX(TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_TRUE, "String must contain search string")                            \
-  XX(TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_FALSE, "String must NOT contain search string")                       \
-  XX(TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_TRUE, "String must start with search string")                      \
-  XX(TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_FALSE, "String must NOT start with search string")                 \
-  XX(TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_TRUE, "String must end with search string")                          \
-  XX(TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_FALSE, "String must NOT end with search string")                     \
-  XX(TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_STRING, "Stripping string from whitespace must return new string")      \
-  XX(TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_NULL, "Stripping string from whitespace must return null")              \
-  XX(TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_TRUE, "Parsing duration string must be successful")                       \
-  XX(TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_FALSE, "Parsing duration string must fail")                               \
-  XX(TEXT_TEST_ERROR_IS_DURATION_LESS_THAN_EXPECTED_TRUE, "lhs duration must be less then rhs")                        \
-  XX(TEXT_TEST_ERROR_IS_DURATION_LESS_THAN_EXPECTED_FALSE, "lhs duration must NOT be less then rhs")                   \
-  XX(TEXT_TEST_ERROR_IS_DURATION_GREATER_THAN_EXPECTED_TRUE, "lhs duration must be greater then rhs")                  \
-  XX(TEXT_TEST_ERROR_IS_DURATION_GREATER_THAN_EXPECTED_FALSE, "lhs duration must NOT be greater then rhs")             \
-  XX(TEXT_TEST_ERROR_PARSE_U64_EXPECTED_TRUE, "Parsing unsigned value must be successful")                             \
-  XX(TEXT_TEST_ERROR_PARSE_U64_EXPECTED_FALSE, "Parsing unsigned value must fail")                                     \
-  XX(TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_TRUE, "Parsing hexadecimal value must be successful")                          \
-  XX(TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_FALSE, "Parsing hexadecimal value must fail")                                  \
-  XX(TEXT_TEST_ERROR_FORMATU64_EXPECTED, "Formatting u64 value must be successful")                                    \
-  XX(TEXT_TEST_ERROR_FORMATF32SLOW_EXPECTED, "Formatting f32 value must be successful")                                \
-  XX(TEXT_TEST_ERROR_FORMATHEX_EXPECTED, "Formatting value to hex must be successful")                                 \
-  XX(TEXT_TEST_ERROR_PATHGETDIRECTORY, "Extracting path's parent directory must be successful")                        \
-  XX(TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_TRUE, "Splitting string into parts must be successful")                      \
-  XX(TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_FALSE, "Splitting string into parts must be fail")
+#define TEST_ERROR_LIST(X)                                                                                             \
+  X(TEXT_TEST_ERROR_STRING_FROM_ZERO_TERMINATED, "Failed to create string from zero terminated c-string")              \
+  X(TEXT_TEST_ERROR_STRING_SLICE_FROM, "Failed to slice string from specified index to the end")                       \
+  X(TEXT_TEST_ERROR_STRING_SLICE_TO, "Failed to slice string from beginning to specified index")                       \
+  X(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_TRUE, "Strings must be equal")                                             \
+  X(TEXT_TEST_ERROR_IS_STRING_EQUAL_MUST_BE_FALSE, "Strings must NOT be equal")                                        \
+  X(TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_TRUE, "Strings that are case ignored must be equal")           \
+  X(TEXT_TEST_ERROR_IS_STRING_EQUAL_IGNORE_CASE_MUST_BE_FALSE, "Strings that are case ignored must NOT be equal")      \
+  X(TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_TRUE, "String must contain search string")                             \
+  X(TEXT_TEST_ERROR_IS_STRING_CONTAINS_EXPECTED_FALSE, "String must NOT contain search string")                        \
+  X(TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_TRUE, "String must start with search string")                       \
+  X(TEXT_TEST_ERROR_IS_STRING_STARTS_WITH_EXPECTED_FALSE, "String must NOT start with search string")                  \
+  X(TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_TRUE, "String must end with search string")                           \
+  X(TEXT_TEST_ERROR_IS_STRING_ENDS_WITH_EXPECTED_FALSE, "String must NOT end with search string")                      \
+  X(TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_STRING, "Stripping string from whitespace must return new string")       \
+  X(TEXT_TEST_ERROR_STRIP_WHITESPACE_EXPECTED_NULL, "Stripping string from whitespace must return null")               \
+  X(TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_TRUE, "Parsing duration string must be successful")                        \
+  X(TEXT_TEST_ERROR_PARSE_DURATION_EXPECTED_FALSE, "Parsing duration string must fail")                                \
+  X(TEXT_TEST_ERROR_IS_DURATION_LESS_THAN_EXPECTED_TRUE, "lhs duration must be less then rhs")                         \
+  X(TEXT_TEST_ERROR_IS_DURATION_LESS_THAN_EXPECTED_FALSE, "lhs duration must NOT be less then rhs")                    \
+  X(TEXT_TEST_ERROR_IS_DURATION_GREATER_THAN_EXPECTED_TRUE, "lhs duration must be greater then rhs")                   \
+  X(TEXT_TEST_ERROR_IS_DURATION_GREATER_THAN_EXPECTED_FALSE, "lhs duration must NOT be greater then rhs")              \
+  X(TEXT_TEST_ERROR_PARSE_U64_EXPECTED_TRUE, "Parsing unsigned value must be successful")                              \
+  X(TEXT_TEST_ERROR_PARSE_U64_EXPECTED_FALSE, "Parsing unsigned value must fail")                                      \
+  X(TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_TRUE, "Parsing hexadecimal value must be successful")                           \
+  X(TEXT_TEST_ERROR_PARSE_HEX_EXPECTED_FALSE, "Parsing hexadecimal value must fail")                                   \
+  X(TEXT_TEST_ERROR_FORMATU64_EXPECTED, "Formatting u64 value must be successful")                                     \
+  X(TEXT_TEST_ERROR_FORMATF32SLOW_EXPECTED, "Formatting f32 value must be successful")                                 \
+  X(TEXT_TEST_ERROR_FORMATHEX_EXPECTED, "Formatting value to hex must be successful")                                  \
+  X(TEXT_TEST_ERROR_PATHGETDIRECTORY, "Extracting path's parent directory must be successful")                         \
+  X(TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_TRUE, "Splitting string into parts must be successful")                       \
+  X(TEXT_TEST_ERROR_STRINGSPLIT_EXPECTED_FALSE, "Splitting string into parts must be fail")                            \
+  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_TRUE, "Cutting string into before and after must be successful")               \
+  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_FALSE, "Cutting string into before and after must fail")                       \
+  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_BEFORE, "Cut string into before and after, but before is wrong")               \
+  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_AFTER, "Cut string into before and after, but after is wrong")
 
 enum text_test_error {
   TEXT_TEST_ERROR_NONE = 0,
-#define XX(tag, message) tag,
-  TEST_ERROR_LIST(XX)
-#undef XX
+#define X(tag, message) tag,
+  TEST_ERROR_LIST(X)
+#undef X
 
   // src: https://mesonbuild.com/Unit-tests.html#skipped-tests-and-hard-errors
   // For the default exitcode testing protocol, the GNU standard approach in
@@ -1641,6 +1645,146 @@ main(void)
 
             splitFailCount++;
           }
+        }
+      }
+    }
+  }
+
+  // string_cut StringCut(struct string *string, struct string *separator)
+  if (IsStringEqualOK) {
+    __cleanup_memory_temp__ memory_temp tempMemory = MemoryTempBegin(&stackMemory);
+
+    struct text_case_expected {
+      b8 ok;
+      struct string before;
+      struct string after;
+    };
+    struct test_case {
+      struct string input;
+      struct string separator;
+      struct text_case_expected expected;
+    } testCases[] = {
+        {
+            .input = StringFromLiteral("one two three"),
+            .separator = StringFromLiteral(" "),
+            .expected =
+                {
+                    .ok = 1,
+                    .before = StringFromLiteral("one"),
+                    .after = StringFromLiteral("two three"),
+                },
+        },
+        {
+            .input = StringFromLiteral("apple...banana...watermelon"),
+            .separator = StringFromLiteral("..."),
+            .expected =
+                {
+                    .ok = 1,
+                    .before = StringFromLiteral("apple"),
+                    .after = StringFromLiteral("banana...watermelon"),
+                },
+        },
+        {
+            .input = StringFromLiteral("Arthropoda,"),
+            .separator = StringFromLiteral(","),
+            .expected =
+                {
+                    .ok = 1,
+                    .before = StringFromLiteral("Arthropoda"),
+                    .after = StringFromLiteral(""),
+                },
+        },
+        {
+            .input = StringNull(),
+            .separator = StringNull(),
+            .expected = {.ok = 0},
+        },
+        {
+            .input = StringNull(),
+            .separator = StringFromLiteral(","),
+            .expected = {.ok = 0},
+        },
+        {
+            .input = StringFromLiteral(""),
+            .separator = StringNull(),
+            .expected = {.ok = 0},
+        },
+        {
+            .input = StringFromLiteral(""),
+            .separator = StringFromLiteral(","),
+            .expected = {.ok = 0},
+        },
+        {
+            .input = StringFromLiteral("No separator found"),
+            .separator = StringFromLiteral(","),
+            .expected = {.ok = 0},
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *input = &testCase->input;
+      struct string *separator = &testCase->separator;
+
+      struct text_case_expected expected = testCase->expected;
+      struct string_cut got = StringCut(input, separator);
+
+      if (got.ok != expected.ok) {
+        errorCode = expected.ok ? TEXT_TEST_ERROR_STRING_CUT_EXPECTED_TRUE : TEXT_TEST_ERROR_STRING_CUT_EXPECTED_FALSE;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+        StringBuilderAppendStringLiteral(sb, "\n     input: '");
+        StringBuilderAppendString(sb, input);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n separator: '");
+        StringBuilderAppendString(sb, separator);
+        StringBuilderAppendStringLiteral(sb, "'");
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      } else {
+
+        if (!IsStringEqual(&got.before, &expected.before)) {
+          errorCode = TEXT_TEST_ERROR_STRING_CUT_EXPECTED_BEFORE;
+
+          StringBuilderAppendErrorMessage(sb, errorCode);
+          StringBuilderAppendStringLiteral(sb, "\n     input: '");
+          StringBuilderAppendString(sb, input);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n separator: '");
+          StringBuilderAppendString(sb, separator);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n  expected: '");
+          StringBuilderAppendString(sb, &expected.before);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n       got: '");
+          StringBuilderAppendString(sb, &got.before);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n");
+          struct string errorMessage = StringBuilderFlush(sb);
+          PrintString(&errorMessage);
+        }
+
+        if (!IsStringEqual(&got.after, &expected.after)) {
+          errorCode = TEXT_TEST_ERROR_STRING_CUT_EXPECTED_AFTER;
+
+          StringBuilderAppendErrorMessage(sb, errorCode);
+          StringBuilderAppendStringLiteral(sb, "\n     input: '");
+          StringBuilderAppendString(sb, input);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n separator: '");
+          StringBuilderAppendString(sb, separator);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n  expected: '");
+          StringBuilderAppendString(sb, &expected.after);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n       got: '");
+          StringBuilderAppendString(sb, &got.after);
+          StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n");
+          struct string errorMessage = StringBuilderFlush(sb);
+          PrintString(&errorMessage);
         }
       }
     }
