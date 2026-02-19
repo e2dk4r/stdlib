@@ -808,28 +808,26 @@ ParseHex(struct string *string, u64 *value)
  * └──────────────────────────────────────────────────────────────────────────────┘
  */
 static inline struct string
-FormatHex(struct string *stringBuffer, u64 value)
+FormatHex(struct string *buffer, u64 value)
 {
   struct string result = StringNull();
-  if (!stringBuffer || stringBuffer->length < 2)
+  if (!buffer || buffer->length < 2)
     return result;
 
   if (value == 0) {
     // edge case 0x00
-    u8 *digit = stringBuffer->value;
+    u8 *digit = buffer->value;
     *digit++ = '0';
     *digit++ = '0';
-    result.value = stringBuffer->value;
+    result.value = buffer->value;
     result.length = 2;
     return result;
   }
 
-  u64 index = 0;
-
   // 1 - pick good width
   u64 width;
   {
-    u8 n = bsrl(value);
+    u8 n = (u8)bsrl(value);
     if (n < 16) {
       if (n < 8)
         width = 8;
@@ -844,14 +842,17 @@ FormatHex(struct string *stringBuffer, u64 value)
   }
 
   // 2 - turn value into hex
-  do {
-    width -= 4;
-    stringBuffer->value[index] = (u8)("0123456789abcdef"[(value >> width) & 15]);
-    index++;
-  } while (width);
+  u64 length = width / 4;
+  if (buffer->length < length)
+    return result;
 
-  result.value = stringBuffer->value;
-  result.length = index;
+  for (u64 index = 0; index < length; index++) {
+    width -= 4;
+    buffer->value[index] = (u8)("0123456789abcdef"[(value >> width) & 15]);
+  }
+
+  result.value = buffer->value;
+  result.length = length;
   return result;
 }
 
