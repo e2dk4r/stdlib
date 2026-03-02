@@ -119,12 +119,12 @@ Lerp(f32 a, f32 b, f32 t)
 static inline s32
 bsr(u32 x)
 {
-  return __builtin_clz(x) ^ (sizeof(s32) * 8 - 1);
+  return __builtin_clz(x) ^ (int)(sizeof(s32) * 8 - 1);
 }
 static inline s64
 bsrl(u64 x)
 {
-  return __builtin_clzll(x) ^ (sizeof(s64) * 8 - 1);
+  return __builtin_clzll(x) ^ (int)(sizeof(s64) * 8 - 1);
 }
 
 static inline f32
