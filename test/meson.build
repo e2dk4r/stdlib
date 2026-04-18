@@ -6,6 +6,7 @@ foreach testName : [
   'string_cursor',
   'string_builder',
   'math',
+  'list',
 ]
   t = executable(
     testName + '_test',
