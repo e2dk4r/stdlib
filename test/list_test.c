@@ -138,21 +138,21 @@ ListExist(struct list *list, u32 item)
 static void
 ListAppend(struct list *list, u32 item)
 {
+  u32 total = list->total;
   u32 count = list->count;
-  if (count != 0 && ListExist(list, item))
+  if (total == 0 || count == total || ListExist(list, item))
     return;
 
   u32 *items = list->items;
   u32 index = count;
   if (count != 0) {
     u32 leftIndex = 0;
-    u32 rightIndex = list->count - 1;
+    u32 rightIndex = count - 1;
 
     while (leftIndex < rightIndex) {
       u32 middleIndex = leftIndex + (rightIndex - leftIndex) / 2;
 
       u32 middle = items[middleIndex];
-      debug_assert(item != middle && "item is already inserted");
       if (item > middle)
         leftIndex = middleIndex + 1;
       else
@@ -160,6 +160,7 @@ ListAppend(struct list *list, u32 item)
     }
 
     index = leftIndex;
+    debug_assert(item != items[index] && "item is already inserted");
     if (item > items[index])
       // if item biggest, append to end of the list
       index++;
@@ -388,19 +389,35 @@ main(void)
                     .items = (u32[]){1, 2, 3, 4, 0},
                 },
         },
+        {
+            // must not be added
+            .list =
+                (struct list){
+                    .count = 5,
+                    .total = 5,
+                    .items = (u32[]){1, 2, 3, 4, 5},
+                },
+            .item = 6,
+            .expected =
+                (struct list){
+                    .count = 5,
+                    .total = 5,
+                    .items = (u32[]){1, 2, 3, 4, 5},
+                },
+        },
     };
 
     for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
       struct test_case *testCase = testCases + testCaseIndex;
 
+      struct list *expected = &testCase->expected;
       struct list *list = &testCase->list;
       u32 startedWith = list->count;
       u32 item = testCase->item;
+
       ListAppend(list, item);
 
-      struct list *expected = &testCase->expected;
       b8 ok = 1;
-
       if (list->count != expected->count) {
         ok = 0;
       } else {
