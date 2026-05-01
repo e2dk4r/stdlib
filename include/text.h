@@ -1003,3 +1003,74 @@ StringCut(struct string *string, struct string *separator)
 
   return result;
 }
+
+struct string_iterator {
+  struct string *string;
+  u64 index;
+};
+
+static inline struct string_iterator
+StringIteratorFrom(struct string *string)
+{
+  debug_assert(string != 0 && string->length != 0 && "null/empty string given to iterate");
+  return (struct string_iterator){
+      .string = string,
+      .index = 0,
+  };
+}
+
+static inline b8
+StringIteratorHasNext(struct string_iterator *iterator)
+{
+  return iterator->index < iterator->string->length;
+}
+
+static inline u32
+StringIteratorNext(struct string_iterator *iterator)
+{
+  u8 *bytes = iterator->string->value + iterator->index;
+
+  u8 byte = *bytes;
+  b8 v01 = ((byte & 0b10000000) >> 7) & ((byte & 0b01000000) >> 6);
+  b8 v2 = (byte & 0b00100000) >> 5;
+  b8 v3 = (byte & 0b00010000) >> 4;
+  u8 codepointWidth = 1 + (u8)((v01 << v2) | (v01 & v3));
+
+  u32 codepoint = byte & (0b01111111 >> (codepointWidth & -v01));
+  for (u8 byteIndex = 1; byteIndex < codepointWidth; byteIndex++) {
+    byte = *(bytes + byteIndex);
+    codepoint <<= 6;
+    codepoint |= (byte & 0b00111111);
+  }
+
+  iterator->index += codepointWidth;
+  return codepoint;
+}
+
+static inline u64
+StringLength(struct string *string)
+{
+  u64 length = 0;
+
+  for (u64 index = 0; index < string->length; length++) {
+    u8 character = *(string->value + index);
+
+#if 1
+    b8 v01 = ((character & 0b10000000) >> 7) & ((character & 0b01000000) >> 6);
+    b8 v2 = (character & 0b00100000) >> 5;
+    b8 v3 = (character & 0b00010000) >> 4;
+
+    index += 1 + (u64)((v01 << v2) | (v01 & v3));
+#else
+    // unoptimized
+    b8 v0 = (character & 0b10000000) >> 7;
+    b8 v1 = (character & 0b01000000) >> 6;
+    b8 v2 = (character & 0b00100000) >> 5;
+    b8 v3 = (character & 0b00010000) >> 4;
+
+    index += 1 + (u64)(v0 * v1) + (u64)(v0 * v1 * v2) + (u64)(v0 * v1 * v2 * v3);
+#endif
+  }
+
+  return length;
+}

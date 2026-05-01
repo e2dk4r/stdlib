@@ -37,7 +37,11 @@
   X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_TRUE, "Cutting string into before and after must be successful")               \
   X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_FALSE, "Cutting string into before and after must fail")                       \
   X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_BEFORE, "Cut string into before and after, but before is wrong")               \
-  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_AFTER, "Cut string into before and after, but after is wrong")
+  X(TEXT_TEST_ERROR_STRING_CUT_EXPECTED_AFTER, "Cut string into before and after, but after is wrong")                 \
+  X(TEXT_TEST_ERROR_STRING_LENGTH_NOT_CORRECT, "String length is not correct")                                         \
+  X(TEXT_TEST_ERROR_STRING_ITERATOR_LOOP_ALL, "String iterator not looping all codepoints")                            \
+  X(TEXT_TEST_ERROR_STRING_ITERATOR_LOOP_OVERFLOW, "String iterator not overflowed")                                   \
+  X(TEXT_TEST_ERROR_STRING_ITERATOR_DECODE_UTF8, "String iterator not returning correct codepoint")
 
 enum text_test_error {
   TEXT_TEST_ERROR_NONE = 0,
@@ -100,6 +104,15 @@ StringBuilderAppendPrintableString(string_builder *sb, struct string *string)
     StringBuilderAppendStringLiteral(sb, "(SPACE)");
   else
     StringBuilderAppendString(sb, string);
+}
+
+static void
+StringBuilderAppendCodepoint(string_builder *sb, u32 codepoint)
+{
+  StringBuilderAppendStringLiteral(sb, "0x");
+  StringBuilderAppendHex(sb, codepoint);
+  StringBuilderAppendStringLiteral(sb, " ");
+  StringBuilderAppendU32(sb, codepoint);
 }
 
 int
@@ -1782,6 +1795,293 @@ main(void)
           StringBuilderAppendStringLiteral(sb, "\n       got: '");
           StringBuilderAppendString(sb, &got.after);
           StringBuilderAppendStringLiteral(sb, "'");
+          StringBuilderAppendStringLiteral(sb, "\n");
+          struct string errorMessage = StringBuilderFlush(sb);
+          PrintString(&errorMessage);
+        }
+      }
+    }
+  }
+
+  // u64 StringLength(struct string *string)
+  {
+    struct test_case {
+      struct string language;
+      struct string input;
+      u64 expected;
+    } testCases[] = {
+        {
+            .language = StringFromLiteral("Greek"),
+            .input = StringFromLiteral("Σὲ γνωρίζω ἀπὸ τὴν κόψη"),
+            .expected = 23,
+        },
+        {
+            .language = StringFromLiteral("Russian"),
+            .input = StringFromLiteral("Зарегистрируйтесь сейчас на Десятую Международную Конференцию по Unicode, "
+                                       "которая состоится 10-12 марта 1997 года в Майнце в Германии."),
+            .expected = 134,
+        },
+        {
+            .language = StringFromLiteral("Braille"),
+            .input = StringFromLiteral("⡌⠁⠧⠑ ⠼⠁⠒  ⡍⠜⠇⠑⠹⠰⠎ ⡣⠕⠌"),
+            .expected = 21,
+        },
+        {
+            .language = StringFromLiteral("Arabic"),
+            .input = StringFromLiteral("مرحبا"),
+            .expected = 5,
+        },
+        {
+            .language = StringFromLiteral("Cantonese Chinese"),
+            .input = StringFromLiteral("哈囉"),
+            .expected = 2,
+        },
+        {
+            .language = StringFromLiteral("Japanese"),
+            .input = StringFromLiteral("こんにちは"),
+            .expected = 5,
+        },
+        {
+            .language = StringFromLiteral("Korean"),
+            .input = StringFromLiteral("안녕하세요"),
+            .expected = 5,
+        },
+        {
+            .language = StringFromLiteral("Mandarin Chinese"),
+            .input = StringFromLiteral("你好"),
+            .expected = 2,
+        },
+        {
+            .language = StringFromLiteral("Polish"),
+            .input = StringFromLiteral("Cześć"),
+            .expected = 5,
+        },
+        {
+            .language = StringFromLiteral("Urdu"),
+            .input = StringFromLiteral("سلام"),
+            .expected = 4,
+        },
+        {
+            .language = StringFromLiteral("Vietnamese"),
+            .input = StringFromLiteral("Xin chào"),
+            .expected = 8,
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *input = &testCase->input;
+      u64 expected = testCase->expected;
+      u64 got = StringLength(input);
+
+      if (got != expected) {
+        errorCode = TEXT_TEST_ERROR_STRING_LENGTH_NOT_CORRECT;
+
+        StringBuilderAppendErrorMessage(sb, errorCode);
+        StringBuilderAppendStringLiteral(sb, "\n language: ");
+        StringBuilderAppendString(sb, &testCase->language);
+        StringBuilderAppendStringLiteral(sb, "\n    input: ");
+        StringBuilderAppendString(sb, input);
+        StringBuilderAppendStringLiteral(sb, "\n expected: ");
+        StringBuilderAppendU64(sb, expected);
+        StringBuilderAppendStringLiteral(sb, "\n      got: ");
+        StringBuilderAppendU64(sb, got);
+        StringBuilderAppendStringLiteral(sb, "\n");
+        struct string errorMessage = StringBuilderFlush(sb);
+        PrintString(&errorMessage);
+      }
+    }
+  }
+
+  // u32 StringIteratorNext(struct string_iterator *iterator)
+  {
+    struct test_case_expected {
+      u64 length;
+      u32 *codepoints;
+    };
+
+    struct test_case {
+      struct string language;
+      struct string input;
+      struct test_case_expected expected;
+    } testCases[] = {
+        {
+            .language = StringFromLiteral("Arabic"),
+            .input = StringFromLiteral("مرحبا"),
+            .expected =
+                {
+                    .length = 5,
+                    .codepoints =
+                        (u32[]){
+                            0x0645,
+                            0x0631,
+                            0x062D,
+                            0x0628,
+                            0x0627,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Cantonese Chinese"),
+            .input = StringFromLiteral("哈囉"),
+            .expected =
+                {
+                    .length = 2,
+                    .codepoints =
+                        (u32[]){
+                            0x54C8,
+                            0x56C9,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Japanese"),
+            .input = StringFromLiteral("こんにちは"),
+            .expected =
+                {
+                    .length = 5,
+                    .codepoints =
+                        (u32[]){
+                            0x3053,
+                            0x3093,
+                            0x306B,
+                            0x3061,
+                            0x306F,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Korean"),
+            .input = StringFromLiteral("안녕하세요"),
+            .expected =
+                {
+                    .length = 5,
+                    .codepoints =
+                        (u32[]){
+                            0xC548,
+                            0xB155,
+                            0xD558,
+                            0xC138,
+                            0xC694,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Mandarin Chinese"),
+            .input = StringFromLiteral("你好"),
+            .expected =
+                {
+                    .length = 2,
+                    .codepoints =
+                        (u32[]){
+                            0x4F60,
+                            0x597D,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Polish"),
+            .input = StringFromLiteral("Cześć"),
+            .expected =
+                {
+                    .length = 5,
+                    .codepoints =
+                        (u32[]){
+                            0x0043,
+                            0x007A,
+                            0x0065,
+                            0x015B,
+                            0x0107,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Urdu"),
+            .input = StringFromLiteral("سلام"),
+            .expected =
+                {
+                    .length = 4,
+                    .codepoints =
+                        (u32[]){
+                            0x0633,
+                            0x0644,
+                            0x0627,
+                            0x0645,
+                        },
+                },
+        },
+        {
+            .language = StringFromLiteral("Vietnamese"),
+            .input = StringFromLiteral("Xin chào"),
+            .expected =
+                {
+                    .length = 8,
+                    .codepoints =
+                        (u32[]){
+                            0x0058,
+                            0x0069,
+                            0x006E,
+                            0x0020,
+                            0x0063,
+                            0x0068,
+                            0x00E0,
+                            0x006F,
+                        },
+                },
+        },
+    };
+
+    for (u32 testCaseIndex = 0; testCaseIndex < ARRAY_COUNT(testCases); testCaseIndex++) {
+      struct test_case *testCase = testCases + testCaseIndex;
+
+      struct string *input = &testCase->input;
+      struct test_case_expected *expected = &testCase->expected;
+      b8 isInputShown = 0;
+
+      u64 index = 0;
+      for (struct string_iterator iterator = StringIteratorFrom(input); StringIteratorHasNext(&iterator); index++) {
+
+        if (index >= expected->length) {
+          errorCode = TEXT_TEST_ERROR_STRING_ITERATOR_LOOP_OVERFLOW;
+
+          StringBuilderAppendErrorMessage(sb, errorCode);
+          if (!isInputShown) {
+            StringBuilderAppendStringLiteral(sb, "\n language: ");
+            StringBuilderAppendString(sb, &testCase->language);
+            StringBuilderAppendStringLiteral(sb, "\n    input: ");
+            StringBuilderAppendString(sb, input);
+            isInputShown = 1;
+          }
+          StringBuilderAppendStringLiteral(sb, "\n  maximum length: ");
+          StringBuilderAppendU64(sb, expected->length);
+
+          struct string errorMessage = StringBuilderFlush(sb);
+          PrintString(&errorMessage);
+          break;
+        }
+
+        u32 expectedCodepoint = *(expected->codepoints + index);
+        u32 codepoint = StringIteratorNext(&iterator);
+        if (codepoint != expectedCodepoint) {
+          errorCode = TEXT_TEST_ERROR_STRING_ITERATOR_DECODE_UTF8;
+
+          if (!isInputShown) {
+            StringBuilderAppendErrorMessage(sb, errorCode);
+            StringBuilderAppendStringLiteral(sb, "\n  language: ");
+            StringBuilderAppendString(sb, &testCase->language);
+            StringBuilderAppendStringLiteral(sb, "\n     input: ");
+            StringBuilderAppendString(sb, input);
+            StringBuilderAppendStringLiteral(sb, "\n");
+            isInputShown = 1;
+          }
+
+          StringBuilderAppendStringLiteral(sb, "\n     index: ");
+          StringBuilderAppendU64(sb, index);
+          StringBuilderAppendStringLiteral(sb, "\n  expected: ");
+          StringBuilderAppendCodepoint(sb, expectedCodepoint);
+          StringBuilderAppendStringLiteral(sb, "\n       got: ");
+          StringBuilderAppendCodepoint(sb, codepoint);
           StringBuilderAppendStringLiteral(sb, "\n");
           struct string errorMessage = StringBuilderFlush(sb);
           PrintString(&errorMessage);
